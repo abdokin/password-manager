@@ -1,17 +1,19 @@
 import Link from "next/link";
 import React from "react";
-import { ArrowRightIcon, ThickArrowLeftIcon } from "@radix-ui/react-icons";
-interface PasswordCardProps {
-  url: string;
-  slug: string;
-}
-export default function PasswordCard({ url, slug }: PasswordCardProps) {
+import { Password } from "@/data/schema";
+import getFaviconUrl from "@/lib/get-favicon";
+
+export default async function PasswordCard({ name, slug }: Password) {
+  const favicon = await getFaviconUrl(name);
   return (
     <Link
       href={slug}
       className="flex py-4 px-2 justify-between border-b hover:bg-zinc-100"
     >
-      <p>{url}</p>
+      <div className="flex items-center gap-1">
+        {favicon && <img src={favicon} />}
+        <p>{name}</p>
+      </div>
       <svg
         className="w-8 h-8"
         viewBox="0 0 15 15"
