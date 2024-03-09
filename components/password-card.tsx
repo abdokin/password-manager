@@ -1,19 +1,16 @@
 import Link from "next/link";
 import React from "react";
 import { Password } from "@/data/schema";
-import getFaviconUrl from "@/lib/get-favicon";
+
+import SiteIcon from "./SiteIcon";
 
 export default async function PasswordCard({ name, slug }: Password) {
-  const favicon = await getFaviconUrl(name);
   return (
     <Link
-      href={slug}
+      href={"/password/" + slug}
       className="flex py-4 px-2 justify-between border-b hover:bg-zinc-100"
     >
-      <div className="flex items-center gap-1">
-        {favicon && <img src={favicon} />}
-        <p>{name}</p>
-      </div>
+      <SiteIcon url={name} />
       <svg
         className="w-8 h-8"
         viewBox="0 0 15 15"
@@ -27,7 +24,6 @@ export default async function PasswordCard({ name, slug }: Password) {
           clip-rule="evenodd"
         ></path>
       </svg>
-      {/* <ThickArrowLeftIcon /> */}
     </Link>
   );
 }
