@@ -22,9 +22,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { createPassword } from "@/lib/actions";
+import { createPassword, deletePassword, editPassword } from "@/lib/actions";
 import { useToast } from "./ui/use-toast";
 import { useState } from "react";
+import { Password } from "@/data/schema";
+
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -39,8 +41,25 @@ const formSchema = z.object({
 });
 
 export function NewPassword() {
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
+
+  return (
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogTrigger>
+        <Button>New</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add new Password</DialogTitle>
+        </DialogHeader>
+        <PasswordForm setOpen={setOpen} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function PasswordForm({ setOpen }: { setOpen?: (v: boolean) => void }) {
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -62,68 +81,148 @@ export function NewPassword() {
         title: res.message,
       });
       form.reset();
-      setOpen(false);
+      setOpen && setOpen(false);
     }
   }
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger>
-        <Button>New</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add new Password</DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Site </FormLabel>
-                  <FormControl>
-                    <Input placeholder="www.example.com" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This is site of the password
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="john .." {...field} />
-                  </FormControl>
-                  <FormDescription>This is your username.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input placeholder="******" {...field} type="password" />
-                  </FormControl>
-                  <FormDescription>This is your password.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit">Submit</Button>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Site </FormLabel>
+              <FormControl>
+                <Input placeholder="www.example.com" {...field} />
+              </FormControl>
+              <FormDescription>This is site of the password</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="john .." {...field} />
+              </FormControl>
+              <FormDescription>This is your username.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input placeholder="******" {...field} type="password" />
+              </FormControl>
+              <FormDescription>This is your password.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
+}
+
+export function EditPasswordForm({
+  setOpen,
+  values,
+  id,
+}: {
+  setOpen?: (v: boolean) => void;
+  values: Password;
+  id: number;
+}) {
+  const { toast } = useToast();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { ...values },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const res = await editPassword(id, values);
+    if (res.error) {
+      console.log("here");
+
+      toast({
+        variant: "destructive",
+        title: res.error,
+      });
+    } else {
+      toast({
+        title: res.message,
+      });
+      form.reset();
+      setOpen && setOpen(false);
+    }
+  }
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Site </FormLabel>
+              <FormControl>
+                <Input placeholder="www.example.com" {...field} />
+              </FormControl>
+              <FormDescription>This is site of the password</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="john .." {...field} />
+              </FormControl>
+              <FormDescription>This is your username.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input placeholder="******" {...field} type="password" />
+              </FormControl>
+              <FormDescription>This is your password.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex gap-2 items-center">
+          <Button type="submit">Edit</Button>
+          <Button
+            type="button"
+            variant={"destructive"}
+            onClick={() => deletePassword(id)}
+          >
+            Delete
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
