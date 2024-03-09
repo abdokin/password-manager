@@ -103,12 +103,15 @@ It looks like you have a project structure that includes various directories and
 
 3. **Configure Environment Variables:**
    Create a `.env` file in the project root and add any necessary environment variables.
-
-4. **Run the Application:**
+4. **Setup Db**
+    ```bash
+      npx drizzle-kit push:sqlite
+    ```
+5. **Run the Application:**
    ```bash
    npm run dev
    ```
 
-5. **Access the Application:**
+6. **Access the Application:**
    Open your browser and navigate to [http://localhost:3000](http://localhost:3000).
 
