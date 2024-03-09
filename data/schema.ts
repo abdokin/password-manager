@@ -13,5 +13,10 @@ export const insertPasswordSchema = createInsertSchema(passwordsTable).pick({
   username: true,
   password: true,
 });
+export const updatePasswordSchema = createInsertSchema(passwordsTable).pick({
+  name: true,
+  username: true,
+  password: true,
+});
 export type Password = typeof passwordsTable.$inferInsert;
 export type NewPassword = typeof passwordsTable.$inferInsert;
