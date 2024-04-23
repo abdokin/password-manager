@@ -15,6 +15,7 @@ export async function createPassword(
   data: z.infer<typeof insertPasswordSchema>
 ) {
   try {
+
     const validateData = await insertPasswordSchema.parseAsync(data);
 
     // Generate a unique UUID as the slug
