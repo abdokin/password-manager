@@ -12,7 +12,8 @@ export async function GET() {
 
     // Check main database
     try {
-      await db.execute(sql`SELECT 1`);
+      // Use drizzle's select to test connection
+      await db.select().from(organizationsTable).limit(1);
       checks.database = { status: "ok" };
     } catch (error: any) {
       checks.database = {

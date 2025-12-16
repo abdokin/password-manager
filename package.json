@@ -82,6 +82,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.1.2",
     "jsdom": "^27.3.0",
+    "nodemailer-stub": "^1.2.2",
     "postcss": "^8",
     "prettier": "^3.7.4",
     "studio": "^0.13.5",
