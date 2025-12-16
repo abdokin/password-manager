@@ -83,8 +83,16 @@ jobs:
           node-version: "20"
           cache: "pnpm"
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Rebuild native modules
+        run: pnpm rebuild
 
       - name: Run tests
         run: pnpm test:run
@@ -123,8 +131,16 @@ jobs:
           node-version: "20"
           cache: "pnpm"
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Rebuild native modules
+        run: pnpm rebuild
 
       - name: Build Next.js application
         run: pnpm build
