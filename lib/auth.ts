@@ -3,26 +3,57 @@ import EmailProvider from "next-auth/providers/email";
 
 import { EmailAdapter } from "./auth-email-adapter";
 
+// Get email server configuration for NextAuth
+function getEmailServerConfig() {
+  // Production: Use configured SMTP
+  if (process.env.SMTP_HOST) {
+    return {
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || "587"),
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    };
+  }
+
+  // Development: Use console logging transport
+  // NextAuth requires a server config, so we provide a minimal one
+  // Actual email sending is handled by our adapter/queue system
+  if (process.env.NODE_ENV === "development") {
+    return {
+      host: "localhost",
+      port: 587,
+      secure: false,
+      // No auth needed for console logging
+      tls: {
+        rejectUnauthorized: false,
+      },
+    };
+  }
+
+  // Fallback: minimal config
+  return {
+    host: "localhost",
+    port: 587,
+    secure: false,
+  };
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: EmailAdapter(),
   providers: [
     EmailProvider({
-      server: process.env.SMTP_HOST
-        ? {
-            host: process.env.SMTP_HOST,
-            port: parseInt(process.env.SMTP_PORT || "587"),
-            auth: {
-              user: process.env.SMTP_USER,
-              pass: process.env.SMTP_PASSWORD,
-            },
-          }
-        : undefined,
+      server: getEmailServerConfig(),
       from: process.env.SMTP_FROM || "noreply@passwordmanager.com",
       // We handle email sending via our queue system in the adapter
       sendVerificationRequest: async ({ identifier, url, provider }) => {
         // Email is sent via the adapter's createVerificationToken
         // This is just a placeholder - actual sending happens in the adapter
-        console.log("Verification request:", { identifier, url });
+        if (process.env.NODE_ENV === "development") {
+          console.log("🔗 Magic Link (dev):", url);
+          console.log("📧 For:", identifier);
+        }
       },
     }),
   ],

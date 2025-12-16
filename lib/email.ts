@@ -6,25 +6,52 @@ import { MagicLinkEmail } from "./email/templates/magic-link";
 import { WelcomeEmail } from "./email/templates/welcome";
 
 // Create transporter (configure based on your email provider)
-// For development, you can use Ethereal Email or configure SMTP
-const transporter = nodemailer.createTransport(
-  process.env.SMTP_HOST
-    ? {
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || "587"),
-        secure: process.env.SMTP_SECURE === "true", // true for 465, false for other ports
+// For development, use Ethereal Email or console logging
+function createTransporter() {
+  // Production: Use configured SMTP
+  if (process.env.SMTP_HOST) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || "587"),
+      secure: process.env.SMTP_SECURE === "true", // true for 465, false for other ports
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+  }
+
+  // Development: Use Ethereal Email (test service) or console logging
+  if (process.env.NODE_ENV === "development") {
+    // Try Ethereal Email first (requires account setup)
+    if (process.env.ETHEREAL_USER && process.env.ETHEREAL_PASSWORD) {
+      return nodemailer.createTransport({
+        host: "smtp.ethereal.email",
+        port: 587,
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASSWORD,
+          user: process.env.ETHEREAL_USER,
+          pass: process.env.ETHEREAL_PASSWORD,
         },
-      }
-    : {
-        // Fallback to console logging in development
-        streamTransport: true,
-        newline: "unix",
-        buffer: true,
-      }
-);
+      });
+    }
+
+    // Fallback: Console logging (emails printed to console)
+    return nodemailer.createTransport({
+      streamTransport: true,
+      newline: "unix",
+      buffer: true,
+    });
+  }
+
+  // Fallback for other environments
+  return nodemailer.createTransport({
+    streamTransport: true,
+    newline: "unix",
+    buffer: true,
+  });
+}
+
+const transporter = createTransporter();
 
 export async function sendMagicLink(email: string, token: string) {
   const url = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/auth/callback/email?token=${token}&email=${encodeURIComponent(email)}`;
@@ -55,6 +82,15 @@ export async function sendMagicLink(email: string, token: string) {
 }
 
 export async function send2FACode(email: string, code: string) {
+  // In development without SMTP, log the 2FA code directly
+  if (process.env.NODE_ENV === "development" && !process.env.SMTP_HOST) {
+    console.log("\n🔐 ===== 2FA CODE (DEV MODE) =====");
+    console.log(`To: ${email}`);
+    console.log(`Code: ${code}`);
+    console.log("===================================\n");
+    return { success: true, messageId: "dev-mode" };
+  }
+
   // Render JSX email template to HTML
   const html = await render(TwoFactorEmail({ email, code }));
   const text = `Your 2FA verification code is: ${code}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this code, please secure your account immediately.`;
@@ -76,11 +112,24 @@ export async function send2FACode(email: string, code: string) {
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("Error sending 2FA email:", error);
+    // In development, don't fail - just log
+    if (process.env.NODE_ENV === "development") {
+      console.log("⚠️  2FA email sending failed, but continuing in dev mode");
+      return { success: true, messageId: "dev-fallback" };
+    }
     throw error;
   }
 }
 
 export async function sendWelcomeEmail(email: string) {
+  // In development without SMTP, just log
+  if (process.env.NODE_ENV === "development" && !process.env.SMTP_HOST) {
+    console.log("\n🎉 ===== WELCOME EMAIL (DEV MODE) =====");
+    console.log(`To: ${email}`);
+    console.log("======================================\n");
+    return { success: true, messageId: "dev-mode" };
+  }
+
   // Render JSX email template to HTML
   const html = await render(WelcomeEmail({ email }));
   const text = `Welcome to Password Manager!\n\nThank you for signing up. Your account has been created successfully.\n\nWe recommend setting up two-factor authentication (2FA) to enhance your account security.`;
@@ -102,6 +151,11 @@ export async function sendWelcomeEmail(email: string) {
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("Error sending welcome email:", error);
+    // In development, don't fail - just log
+    if (process.env.NODE_ENV === "development") {
+      console.log("⚠️  Welcome email sending failed, but continuing in dev mode");
+      return { success: true, messageId: "dev-fallback" };
+    }
     throw error;
   }
 }
