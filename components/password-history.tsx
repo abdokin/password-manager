@@ -3,7 +3,7 @@
 import { format } from "date-fns";
 import { Eye, EyeOff, RotateCcw } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -22,18 +22,18 @@ export function PasswordHistory({ passwordId }: PasswordHistoryProps) {
   const { toast } = useToast();
   const router = useRouter();
 
-  useEffect(() => {
-    loadHistory();
-  }, [passwordId]);
-
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     setLoading(true);
     const result = await getPasswordHistory(passwordId);
     if (result.success) {
       setHistory(result.history);
     }
     setLoading(false);
-  };
+  }, [passwordId]);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   const handleRestore = async (historyId: number) => {
     const result = await restorePasswordFromHistory(passwordId, historyId);

@@ -34,7 +34,7 @@ export function WelcomeEmail({ email }: WelcomeEmailProps) {
             </Section>
             <Hr style={hr} />
             <Text style={footer}>
-              If you didn't create this account, please contact support immediately.
+              If you didn&apos;t create this account, please contact support immediately.
             </Text>
           </Section>
         </Container>

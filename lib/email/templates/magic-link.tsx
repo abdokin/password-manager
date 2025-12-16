@@ -40,7 +40,9 @@ export function MagicLinkEmail({ email, magicLink }: MagicLinkEmailProps) {
             <Text style={paragraph}>Or copy and paste this URL into your browser:</Text>
             <Text style={link}>{magicLink}</Text>
             <Hr style={hr} />
-            <Text style={footer}>If you didn't request this email, you can safely ignore it.</Text>
+            <Text style={footer}>
+              If you didn&apos;t request this email, you can safely ignore it.
+            </Text>
           </Section>
         </Container>
       </Body>

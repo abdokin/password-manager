@@ -2,7 +2,7 @@
 
 import { Building2, Loader2, Plus } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -39,11 +39,25 @@ export function OrganizationSwitcher() {
   const [open, setOpen] = useState(false);
   const [orgName, setOrgName] = useState("");
 
-  useEffect(() => {
-    loadOrganizations();
-  }, [session]);
+  const handleOrgChange = useCallback(
+    async (orgId: string) => {
+      const orgIdNum = parseInt(orgId);
+      const result = await setCurrentOrganizationId(orgIdNum);
+      if (result.success) {
+        setCurrentOrgId(orgIdNum);
+        router.refresh();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error || "Failed to switch organization",
+        });
+      }
+    },
+    [router, toast]
+  );
 
-  const loadOrganizations = async () => {
+  const loadOrganizations = useCallback(async () => {
     if (!session) return;
     setLoading(true);
     try {
@@ -59,22 +73,11 @@ export function OrganizationSwitcher() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session, currentOrgId, handleOrgChange]);
 
-  const handleOrgChange = async (orgId: string) => {
-    const orgIdNum = parseInt(orgId);
-    const result = await setCurrentOrganizationId(orgIdNum);
-    if (result.success) {
-      setCurrentOrgId(orgIdNum);
-      router.refresh();
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: result.error || "Failed to switch organization",
-      });
-    }
-  };
+  useEffect(() => {
+    loadOrganizations();
+  }, [loadOrganizations]);
 
   const handleCreateOrg = async () => {
     if (!orgName.trim()) {

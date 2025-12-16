@@ -2,7 +2,7 @@
 
 import { Loader2, Mail, Shield, UserMinus, UserPlus } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -48,11 +48,7 @@ export function TeamManagement({ organizationId }: { organizationId: number }) {
   const { toast } = useToast();
   const router = useRouter();
 
-  useEffect(() => {
-    loadMembers();
-  }, [organizationId]);
-
-  const loadMembers = async () => {
+  const loadMembers = useCallback(async () => {
     try {
       const mems = await getOrganizationMembers(organizationId);
       setMembers(mems as any);
@@ -61,7 +57,11 @@ export function TeamManagement({ organizationId }: { organizationId: number }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [organizationId]);
+
+  useEffect(() => {
+    loadMembers();
+  }, [loadMembers]);
 
   const handleInvite = async () => {
     if (!inviteEmail.trim()) {

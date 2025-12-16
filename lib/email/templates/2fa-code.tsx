@@ -28,7 +28,7 @@ export function TwoFactorEmail({ email, code }: TwoFactorEmailProps) {
             </Text>
             <Hr style={hr} />
             <Text style={footer}>
-              If you didn't request this code, please secure your account immediately.
+              If you didn&apos;t request this code, please secure your account immediately.
             </Text>
           </Section>
         </Container>

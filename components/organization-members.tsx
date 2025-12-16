@@ -2,7 +2,7 @@
 
 import { Eye, Loader2, Shield, Trash2, User, UserPlus, Users } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,11 +45,7 @@ export function OrganizationMembers({ organizationId, userRole }: OrganizationMe
 
   const canManage = userRole === "owner" || userRole === "admin";
 
-  useEffect(() => {
-    loadMembers();
-  }, [organizationId]);
-
-  const loadMembers = async () => {
+  const loadMembers = useCallback(async () => {
     setLoading(true);
     try {
       const result = await getOrganizationMembers(organizationId);
@@ -61,7 +57,11 @@ export function OrganizationMembers({ organizationId, userRole }: OrganizationMe
     } finally {
       setLoading(false);
     }
-  };
+  }, [organizationId]);
+
+  useEffect(() => {
+    loadMembers();
+  }, [loadMembers]);
 
   const handleInvite = async () => {
     if (!inviteEmail.trim()) {
