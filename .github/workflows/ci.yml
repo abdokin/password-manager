@@ -54,7 +54,6 @@ jobs:
 
       - name: Check formatting with Prettier
         run: pnpm format:check
-        continue-on-error: true
 
   test:
     name: Run Tests
