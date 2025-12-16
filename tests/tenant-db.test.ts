@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { getTenantDb, initializeTenantDb, deleteTenantDb } from "../data/tenant-db";
-import { passwordsTable } from "../data/tenant-schema";
-import { encryptPassword } from "../lib/encryption";
 import { eq } from "drizzle-orm";
-import { v4 as uuidv4 } from "uuid";
 import * as fs from "fs";
 import * as path from "path";
+import { v4 as uuidv4 } from "uuid";
+import { beforeEach, describe, expect, it } from "vitest";
 
-const masterPassword = process.env.MASTER_ENCRYPTION_KEY || "test-master-key-for-testing-only-min-32-chars";
+import { deleteTenantDb, getTenantDb, initializeTenantDb } from "../data/tenant-db";
+import { passwordsTable } from "../data/tenant-schema";
+import { encryptPassword } from "../lib/encryption";
 
-const masterPassword = process.env.MASTER_ENCRYPTION_KEY || "test-key";
+const testMasterPassword =
+  process.env.MASTER_ENCRYPTION_KEY || "test-master-key-for-testing-only-min-32-chars";
 
 describe("Tenant Database", () => {
   const testOrgId = 999;
@@ -68,7 +68,7 @@ describe("Tenant Database", () => {
           name: "Tenant Test Site",
           slug: uuidv4(),
           username: "tenantuser",
-          password: encryptPassword("tenantpass", masterPassword),
+          password: encryptPassword("tenantpass", testMasterPassword),
         })
         .returning();
 
@@ -103,7 +103,7 @@ describe("Tenant Database", () => {
           name: "Org1 Site",
           slug: uuidv4(),
           username: "org1user",
-          password: encryptPassword("org1pass", masterPassword),
+          password: encryptPassword("org1pass", testMasterPassword),
         })
         .returning();
 
@@ -115,7 +115,7 @@ describe("Tenant Database", () => {
           name: "Org2 Site",
           slug: uuidv4(),
           username: "org2user",
-          password: encryptPassword("org2pass", masterPassword),
+          password: encryptPassword("org2pass", testMasterPassword),
         })
         .returning();
 
@@ -137,7 +137,7 @@ describe("Tenant Database", () => {
   describe("Tenant DB Cleanup", () => {
     it("should delete tenant database", async () => {
       await initializeTenantDb(testOrgId);
-      
+
       const dbPath = path.join(process.cwd(), "data", "tenants", `tenant-${testOrgId}.db`);
       expect(fs.existsSync(dbPath)).toBe(true);
 
@@ -152,4 +152,3 @@ describe("Tenant Database", () => {
     });
   });
 });
-
