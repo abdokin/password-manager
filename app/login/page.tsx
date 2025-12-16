@@ -151,7 +151,9 @@ export default function LoginPage() {
           </form>
         </Form>
         <div className="text-center text-sm text-muted-foreground">
-          <p>No password needed! Just enter your email and we&apos;ll send you a secure sign-in link.</p>
+          <p>
+            No password needed! Just enter your email and we&apos;ll send you a secure sign-in link.
+          </p>
         </div>
       </div>
     </div>
