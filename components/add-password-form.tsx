@@ -1,10 +1,20 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Check, Copy, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -15,18 +25,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { createPassword, deletePassword, editPassword } from "@/lib/actions";
-import { useToast } from "./ui/use-toast";
-import { useState } from "react";
-import { Password } from "@/data/schema";
+import { Category, Password } from "@/data/tenant-schema";
+import { createPassword, deletePassword, editPassword } from "@/lib/tenant-actions";
 
+import { CategorySelector } from "./category-selector";
+import { PasswordGenerator } from "./password-generator";
+import { useToast } from "./ui/use-toast";
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -38,36 +42,68 @@ const formSchema = z.object({
   name: z.string().min(2, {
     message: "site must be at least 2 characters.",
   }),
+  url: z.string().url("Invalid URL").optional().or(z.literal("")),
+  categoryId: z.number().optional().nullable(),
+  notes: z.string().optional(),
 });
 
-export function NewPassword() {
+export function NewPassword({ categories = [] }: { categories?: Category[] }) {
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger>
-        <Button>New</Button>
+        <Button>New Password</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add new Password</DialogTitle>
         </DialogHeader>
-        <PasswordForm setOpen={setOpen} />
+        <PasswordForm setOpen={setOpen} categories={categories} />
       </DialogContent>
     </Dialog>
   );
 }
 
-export function PasswordForm({ setOpen }: { setOpen?: (v: boolean) => void }) {
+export function PasswordForm({
+  setOpen,
+  categories = [],
+}: {
+  setOpen?: (v: boolean) => void;
+  categories?: Category[];
+}) {
   const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
+  const [copied, setCopied] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
       password: "",
       name: "",
+      url: "",
+      categoryId: null,
+      notes: "",
     },
   });
+
+  const handlePasswordGenerated = (password: string) => {
+    form.setValue("password", password);
+    setShowPassword(true);
+  };
+
+  const handleCopyPassword = async () => {
+    const password = form.getValues("password");
+    if (password) {
+      await navigator.clipboard.writeText(password);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast({
+        title: "Password copied",
+        description: "Password has been copied to clipboard",
+      });
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const res = await createPassword(values);
@@ -86,17 +122,31 @@ export function PasswordForm({ setOpen }: { setOpen?: (v: boolean) => void }) {
   }
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Site </FormLabel>
+              <FormLabel>Site/App Name</FormLabel>
               <FormControl>
                 <Input placeholder="www.example.com" {...field} />
               </FormControl>
-              <FormDescription>This is site of the password</FormDescription>
+              <FormDescription>The name of the website or app</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>URL (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="https://www.example.com" {...field} value={field.value || ""} />
+              </FormControl>
+              <FormDescription>The website URL</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -106,11 +156,11 @@ export function PasswordForm({ setOpen }: { setOpen?: (v: boolean) => void }) {
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Username/Email</FormLabel>
               <FormControl>
-                <Input placeholder="john .." {...field} />
+                <Input placeholder="john@example.com" {...field} />
               </FormControl>
-              <FormDescription>This is your username.</FormDescription>
+              <FormDescription>Your username or email for this account</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -122,14 +172,78 @@ export function PasswordForm({ setOpen }: { setOpen?: (v: boolean) => void }) {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="******" {...field} type="password" />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter password or generate one"
+                    {...field}
+                    type={showPassword ? "text" : "password"}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={handleCopyPassword}
+                    disabled={!field.value}
+                  >
+                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
               </FormControl>
-              <FormDescription>This is your password.</FormDescription>
+              <FormDescription>Enter your password or use the generator below</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <div className="flex justify-end">
+          <PasswordGenerator onPasswordGenerated={handlePasswordGenerated} />
+        </div>
+        <FormField
+          control={form.control}
+          name="categoryId"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <CategorySelector
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  categories={categories}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes (Optional)</FormLabel>
+              <FormControl>
+                <textarea
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Additional notes about this password..."
+                  {...field}
+                  value={field.value || ""}
+                />
+              </FormControl>
+              <FormDescription>Any additional information</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full">
+          Create Password
+        </Button>
       </form>
     </Form>
   );
@@ -139,16 +253,45 @@ export function EditPasswordForm({
   setOpen,
   values,
   id,
+  categories = [],
 }: {
   setOpen?: (v: boolean) => void;
   values: Password;
   id: number;
+  categories?: Category[];
 }) {
   const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
+  const [copied, setCopied] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { ...values },
+    defaultValues: {
+      name: values.name,
+      username: values.username,
+      password: "", // Don't show existing password
+      url: values.url || "",
+      categoryId: values.categoryId || null,
+      notes: values.notes || "",
+    },
   });
+
+  const handlePasswordGenerated = (password: string) => {
+    form.setValue("password", password);
+    setShowPassword(true);
+  };
+
+  const handleCopyPassword = async () => {
+    const password = form.getValues("password");
+    if (password) {
+      await navigator.clipboard.writeText(password);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast({
+        title: "Password copied",
+        description: "Password has been copied to clipboard",
+      });
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const res = await editPassword(id, values);
@@ -169,17 +312,31 @@ export function EditPasswordForm({
   }
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Site </FormLabel>
+              <FormLabel>Site/App Name</FormLabel>
               <FormControl>
                 <Input placeholder="www.example.com" {...field} />
               </FormControl>
-              <FormDescription>This is site of the password</FormDescription>
+              <FormDescription>The name of the website or app</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>URL (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="https://www.example.com" {...field} value={field.value || ""} />
+              </FormControl>
+              <FormDescription>The website URL</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -189,11 +346,11 @@ export function EditPasswordForm({
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Username/Email</FormLabel>
               <FormControl>
-                <Input placeholder="john .." {...field} />
+                <Input placeholder="john@example.com" {...field} />
               </FormControl>
-              <FormDescription>This is your username.</FormDescription>
+              <FormDescription>Your username or email for this account</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -205,20 +362,82 @@ export function EditPasswordForm({
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="******" {...field} type="password" />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Leave empty to keep current password"
+                    {...field}
+                    type={showPassword ? "text" : "password"}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={handleCopyPassword}
+                    disabled={!field.value}
+                  >
+                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
               </FormControl>
-              <FormDescription>This is your password.</FormDescription>
+              <FormDescription>
+                Leave empty to keep current password, or enter a new one
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex justify-end">
+          <PasswordGenerator onPasswordGenerated={handlePasswordGenerated} />
+        </div>
+        <FormField
+          control={form.control}
+          name="categoryId"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <CategorySelector
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  categories={categories}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes (Optional)</FormLabel>
+              <FormControl>
+                <textarea
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Additional notes about this password..."
+                  {...field}
+                  value={field.value || ""}
+                />
+              </FormControl>
+              <FormDescription>Any additional information</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
         <div className="flex gap-2 items-center">
-          <Button type="submit">Edit</Button>
-          <Button
-            type="button"
-            variant={"destructive"}
-            onClick={() => deletePassword(id)}
-          >
+          <Button type="submit" className="flex-1">
+            Update Password
+          </Button>
+          <Button type="button" variant={"destructive"} onClick={() => deletePassword(id)}>
             Delete
           </Button>
         </div>

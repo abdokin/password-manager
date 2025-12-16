@@ -1,8 +1,7 @@
-"use server"
+"use server";
 async function getFaviconUrl(url: string): Promise<string | null> {
   try {
-    const apiUrl =
-      "https://besticon-demo.herokuapp.com/allicons.json?url=" + url;
+    const apiUrl = "https://besticon-demo.herokuapp.com/allicons.json?url=" + url;
     const response = await fetch(apiUrl);
 
     if (!response.ok) {

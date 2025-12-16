@@ -1,0 +1,139 @@
+version: "3.8"
+
+services:
+  # Traefik Reverse Proxy
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Dashboard (only expose if needed)
+    environment:
+      - TRAEFIK_LOG_LEVEL=INFO
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - traefik-letsencrypt:/letsencrypt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.middlewares=dashboard-auth@file"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    networks:
+      - password-manager-network
+    depends_on:
+      - app
+
+  # Next.js Application (Production)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    environment:
+      - NODE_ENV=production
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - MASTER_ENCRYPTION_KEY=${MASTER_ENCRYPTION_KEY}
+      - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+    volumes:
+      - ./data:/app/data
+      - ./sqlite.db:/app/sqlite.db
+    depends_on:
+      redis:
+        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
+    networks:
+      - password-manager-network
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.app.middlewares=security-headers@file,compression@file,rate-limit@file"
+      - "traefik.http.services.app.loadbalancer.server.port=3000"
+      - "traefik.docker.network=password-manager-network"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis for job queue
+  redis:
+    image: redis:7-alpine
+    # Port not exposed externally - only accessible within Docker network
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    networks:
+      - password-manager-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Worker for background jobs
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+    volumes:
+      - ./data:/app/data
+    command: pnpm tsx scripts/worker.ts
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - password-manager-network
+    restart: always
+
+  # Database migration service (runs once on startup)
+  db-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./data:/app/data
+      - ./sqlite.db:/app/sqlite.db
+    command: sh -c "pnpm drizzle-kit push:sqlite --config=drizzle.config.main.ts && echo 'Migrations completed'"
+    networks:
+      - password-manager-network
+    restart: "no"
+
+volumes:
+  redis-data:
+  traefik-letsencrypt:
+
+networks:
+  password-manager-network:
+    driver: bridge

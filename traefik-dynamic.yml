@@ -1,0 +1,55 @@
+# Dynamic Traefik Configuration
+http:
+  middlewares:
+    # Security headers middleware
+    security-headers:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - PUT
+          - POST
+          - DELETE
+        accessControlMaxAge: 100
+        hostsProxyHeaders:
+          - "X-Forwarded-Host"
+        referrerPolicy: "same-origin"
+        customFrameOptionsValue: "SAMEORIGIN"
+        contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'self';"
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        isDevelopment: false
+
+    # Rate limiting middleware
+    rate-limit:
+      rateLimit:
+        average: 100
+        period: 1m
+        burst: 50
+
+    # Basic auth for dashboard (optional, recommended)
+    dashboard-auth:
+      basicAuth:
+        users:
+          - "${TRAEFIK_DASHBOARD_USER:-admin}:${TRAEFIK_DASHBOARD_PASSWORD_HASH}"
+
+    # Compression middleware
+    compression:
+      compress: {}
+
+  routers:
+    # Dashboard router (optional, for monitoring)
+    dashboard:
+      rule: "Host(`traefik.${DOMAIN:-localhost}`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - security-headers
+        - dashboard-auth
+      service: api@internal
+      tls:
+        certResolver: letsencrypt

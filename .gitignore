@@ -37,3 +37,11 @@ next-env.d.ts
 .env
 sqlite.db
 drizzle/*
+# Tenant databases
+data/tenants/
+*.db
+
+# Traefik
+/letsencrypt
+/certs
+traefik-letsencrypt/

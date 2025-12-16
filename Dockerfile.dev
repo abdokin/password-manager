@@ -1,0 +1,31 @@
+# Development Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install system dependencies for better-sqlite3
+RUN apk add --no-cache python3 make g++ libc6-compat
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files
+COPY package.json pnpm-lock.yaml* ./
+
+# Install dependencies
+RUN pnpm install
+
+# Copy application code
+COPY . .
+
+# Rebuild native modules
+RUN pnpm rebuild better-sqlite3 --build-from-source
+
+# Create data directories
+RUN mkdir -p /app/data/tenants
+
+EXPOSE 3000
+
+# Development command
+CMD ["pnpm", "dev:all"]
+
