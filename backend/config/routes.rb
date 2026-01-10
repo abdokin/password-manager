@@ -20,6 +20,16 @@ Rails.application.routes.draw do
         end
         resources :categories, only: [:index, :show, :create, :update, :destroy]
         resources :tags, only: [:index, :show, :create, :update, :destroy]
+        resources :environments, only: [:index, :show, :create, :update, :destroy] do
+          get "variables", to: "environments#variables"
+          post "variables", to: "environments#add_variable"
+          get "variables/:key", to: "environments#get_variable"
+          put "variables/:key", to: "environments#update_variable"
+          delete "variables/:key", to: "environments#delete_variable"
+          get "accesses", to: "environments#accesses"
+          post "accesses", to: "environments#grant_access"
+          delete "accesses", to: "environments#revoke_access"
+        end
       end
       
       resources :passwords, only: [:index, :show, :create, :update, :destroy] do

@@ -9,6 +9,8 @@ module PasswordManager
     config.api_only = true
     config.action_controller.default_protect_from_forgery = false
     
-    config.middleware.use Rack::Attack
+    config.middleware.use Rack::Attack if EnvConfig.rate_limit_enabled?
+    
+    config.log_level = EnvConfig.log_level
   end
 end
