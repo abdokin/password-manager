@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2024_01_10_000022) do
+ActiveRecord::Schema[8.1].define(version: 2024_01_10_000024) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.datetime "created_at", null: false
@@ -87,6 +87,34 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_10_000022) do
     t.index ["environment_type"], name: "index_environments_on_environment_type"
     t.index ["organization_id", "name"], name: "index_environments_on_organization_id_and_name", unique: true
     t.index ["organization_id"], name: "index_environments_on_organization_id"
+  end
+
+  create_table "feature_flag_overrides", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "enabled", default: true, null: false
+    t.integer "feature_flag_id", null: false
+    t.integer "organization_id"
+    t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.index ["feature_flag_id", "organization_id"], name: "idx_on_feature_flag_id_organization_id_763f7d27fe", unique: true, where: "organization_id IS NOT NULL"
+    t.index ["feature_flag_id", "user_id"], name: "index_feature_flag_overrides_on_feature_flag_id_and_user_id", unique: true, where: "user_id IS NOT NULL"
+    t.index ["feature_flag_id"], name: "index_feature_flag_overrides_on_feature_flag_id"
+    t.index ["organization_id"], name: "index_feature_flag_overrides_on_organization_id"
+    t.index ["user_id"], name: "index_feature_flag_overrides_on_user_id"
+  end
+
+  create_table "feature_flags", force: :cascade do |t|
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "key", null: false
+    t.json "metadata"
+    t.string "name", null: false
+    t.string "status", default: "disabled", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category"], name: "index_feature_flags_on_category"
+    t.index ["key"], name: "index_feature_flags_on_key", unique: true
+    t.index ["status"], name: "index_feature_flags_on_status"
   end
 
   create_table "invoices", force: :cascade do |t|
@@ -274,6 +302,9 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_10_000022) do
   add_foreign_key "environment_accesses", "users"
   add_foreign_key "environment_variables", "environments"
   add_foreign_key "environments", "organizations"
+  add_foreign_key "feature_flag_overrides", "feature_flags"
+  add_foreign_key "feature_flag_overrides", "organizations"
+  add_foreign_key "feature_flag_overrides", "users"
   add_foreign_key "invoices", "organizations"
   add_foreign_key "notifications", "organizations"
   add_foreign_key "notifications", "users"
