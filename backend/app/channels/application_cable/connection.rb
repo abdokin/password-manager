@@ -12,25 +12,29 @@ module ApplicationCable
       token = request.params[:token] || extract_token_from_header
       return reject_unauthorized_connection unless token
 
-      decoded = JwtService.decode(token)
-      return reject_unauthorized_connection unless decoded
+      begin
+        decoded = JwtService.decode(token)
+        return reject_unauthorized_connection unless decoded
 
-      user = User.find_by(id: decoded[:user_id])
-      return reject_unauthorized_connection unless user
+        user = User.find_by(id: decoded[:user_id])
+        return reject_unauthorized_connection unless user
 
-      user
+        user
+      rescue => e
+        Rails.logger.error "ActionCable authentication error: #{e.message}"
+        reject_unauthorized_connection
+      end
     end
 
     def extract_token_from_header
+      # Try to get from query params first (WebSocket connection)
+      return request.params[:token] if request.params[:token]
+      
+      # Try Authorization header
       header = request.headers['Authorization']
       return nil unless header
 
       header.split(' ').last if header.start_with?('Bearer ')
     end
-
-    def reject_unauthorized_connection
-      reject_unauthorized_connection
-    end
   end
 end
-

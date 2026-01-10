@@ -9,6 +9,9 @@ gem "rack-cors"
 gem "paper_trail"
 gem "rspec-rails"
 gem "factory_bot_rails"
+gem "jwt"
+gem "rack-attack", require: false
+gem "sidekiq"
 
 group :development, :test do
   gem "debug"
