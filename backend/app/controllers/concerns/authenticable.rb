@@ -9,13 +9,13 @@ module Authenticable
 
   def authenticate_user!
     token = extract_token_from_header
-    return render json: { error: "Unauthorized" }, status: :unauthorized unless token
+    return render_unauthorized("Token missing") unless token
 
     decoded = JwtService.decode(token)
-    return render json: { error: "Unauthorized" }, status: :unauthorized unless decoded
+    return render_unauthorized("Invalid token") unless decoded
 
     @current_user = User.find_by(id: decoded[:user_id])
-    return render json: { error: "Unauthorized" }, status: :unauthorized unless @current_user
+    return render_unauthorized("User not found") unless @current_user
 
     @current_user
   end

@@ -11,7 +11,6 @@ const apiClient = axios.create({
   },
 });
 
-// Add auth token to requests
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth_token');
   if (token) {
@@ -20,10 +19,35 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 errors
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data && typeof response.data === 'object' && 'success' in response.data) {
+      if (response.data.success && response.data.data !== undefined) {
+        return { ...response, data: response.data.data };
+      }
+      if (!response.data.success) {
+        const error = new Error(response.data.error || response.data.message || 'Request failed');
+        (error as any).response = {
+          ...response,
+          data: {
+            error: response.data.error,
+            errors: response.data.errors,
+            message: response.data.message
+          }
+        };
+        return Promise.reject(error);
+      }
+    }
+    return response;
+  },
   (error) => {
+    if (error.response?.data) {
+      const apiError = error.response.data;
+      if (apiError.error || apiError.errors) {
+        error.message = apiError.error || apiError.message || 'Request failed';
+        error.errors = apiError.errors;
+      }
+    }
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
       window.location.href = '/login';
@@ -58,10 +82,10 @@ export const api = {
     create: (organizationId: number, data: Partial<Tag>) => apiClient.post<Tag>(`/organizations/${organizationId}/tags`, { tag: data }).then(res => res.data),
   },
   auth: {
-    magicLink: (email: string) => apiClient.post<{ message: string; token: string }>('/auth/magic_link', { email }).then(res => res.data),
-    verify: (token: string) => apiClient.post<{ token: string; user: User }>('/auth/verify', { token }).then(res => res.data),
-    login: (email: string, password: string) => apiClient.post<{ token: string; user: User }>('/auth/login', { email, password }).then(res => res.data),
-    me: () => apiClient.get<{ user: User }>('/auth/me').then(res => res.data),
+    magicLink: (email: string) => apiClient.post('/auth/magic_link', { email }).then(res => res.data),
+    verify: (token: string) => apiClient.post('/auth/verify', { token }).then(res => res.data),
+    login: (email: string, password: string) => apiClient.post('/auth/login', { email, password }).then(res => res.data),
+    me: () => apiClient.get('/auth/me').then(res => res.data),
   },
   passwordGenerator: {
     generate: (options: { length?: number; include_uppercase?: boolean; include_lowercase?: boolean; include_numbers?: boolean; include_symbols?: boolean }) =>

@@ -9,9 +9,10 @@ class JwtService
   end
 
   def self.decode(token)
-    decoded = JWT.decode(token, SECRET_KEY)[0]
+    decoded = JWT.decode(token, SECRET_KEY, true, { algorithm: 'HS256' })[0]
     HashWithIndifferentAccess.new(decoded)
-  rescue JWT::DecodeError
+  rescue JWT::DecodeError, JWT::ExpiredSignature, JWT::VerificationError => e
+    Rails.logger.error "JWT decode error: #{e.message}"
     nil
   end
 end
