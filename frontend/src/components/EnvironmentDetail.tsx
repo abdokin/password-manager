@@ -18,8 +18,6 @@ export default function EnvironmentDetail({ organizationId, environmentId }: Env
   const addVariable = useAddEnvironmentVariable();
   const getVariable = useGetEnvironmentVariable();
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showValueDialog, setShowValueDialog] = useState(false);
-  const [selectedKey, setSelectedKey] = useState<string>('');
   const [revealedValues, setRevealedValues] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     key: '',
@@ -51,7 +49,7 @@ export default function EnvironmentDetail({ organizationId, environmentId }: Env
     }
 
     try {
-      const result = await getVariable.mutateAsync({
+      await getVariable.mutateAsync({
         organizationId,
         environmentId,
         key,

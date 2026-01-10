@@ -5,7 +5,7 @@ import PasswordForm from '@/components/PasswordForm';
 import SearchBar from '@/components/SearchBar';
 import ImportExport from '@/components/ImportExport';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { usePasswords, useCreatePassword, useUpdatePassword, useDeletePassword, useToggleFavorite } from '@/hooks/usePasswords';
@@ -95,7 +95,7 @@ export default function PasswordList() {
         filters={filters}
         onFilterChange={setFilters}
         sortBy={sortBy}
-        onSortChange={setSortBy}
+        onSortChange={(value) => setSortBy(value as typeof sortBy)}
         sortDirection={sortDirection}
         onSortDirectionChange={setSortDirection}
       />
