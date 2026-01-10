@@ -76,6 +76,18 @@ export const api = {
     revokeAccess: (organizationId: number, environmentId: number, email: string) =>
       apiClient.delete(`/organizations/${organizationId}/environments/${environmentId}/accesses`, { data: { email } }).then(() => undefined),
   },
+  payments: {
+    getPlans: (organizationId: number) =>
+      apiClient.get<{ plans: any[] }>(`/organizations/${organizationId}/payments/plans`).then(res => res.data),
+    createCheckout: (organizationId: number, planId: string) =>
+      apiClient.post<{ checkout_url: string; session_id: string }>(`/organizations/${organizationId}/payments/checkout`, {
+        plan_id: planId,
+      }).then(res => res.data),
+    getSubscription: (organizationId: number) =>
+      apiClient.get<any>(`/organizations/${organizationId}/payments/subscription`).then(res => res.data),
+    cancelSubscription: (organizationId: number) =>
+      apiClient.post<{ message: string }>(`/organizations/${organizationId}/payments/cancel`).then(res => res.data),
+  },
 };
 
 import type { Password, Organization, Category, Tag } from '../types';
