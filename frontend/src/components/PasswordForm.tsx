@@ -1,14 +1,13 @@
 import { useForm } from '@tanstack/react-form';
-import { zodValidator } from '@tanstack/zod-form-adapter';
 import type { Password } from '@/types';
-import { passwordSchema, type PasswordFormData } from '@/schemas/password';
+import type { PasswordFormData } from '@/schemas/password';
 import { usePasswordGenerator } from '@/hooks/usePasswordGenerator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Lock, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 interface PasswordFormProps {
   password?: Password | null;
