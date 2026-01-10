@@ -2,7 +2,10 @@ import { useState } from 'react';
 import type { Password } from '@/types';
 import PasswordCard from '@/components/PasswordCard';
 import PasswordForm from '@/components/PasswordForm';
+import SearchBar from '@/components/SearchBar';
+import ImportExport from '@/components/ImportExport';
 import { usePasswords, useCreatePassword, useUpdatePassword, useDeletePassword, useToggleFavorite } from '@/hooks/usePasswords';
+import { useSearch } from '@/hooks/useSearch';
 
 export default function PasswordList() {
   const { data: passwords = [], isLoading } = usePasswords();
@@ -12,6 +15,19 @@ export default function PasswordList() {
   const toggleFavorite = useToggleFavorite();
   const [showForm, setShowForm] = useState(false);
   const [editingPassword, setEditingPassword] = useState<Password | null>(null);
+  const [selectedOrgId] = useState(1);
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    filters,
+    setFilters,
+    sortBy,
+    setSortBy,
+    sortDirection,
+    setSortDirection,
+    filteredPasswords,
+  } = useSearch(passwords);
 
   const handleCreate = async (passwordData: Partial<Password>) => {
     try {
@@ -57,20 +73,34 @@ export default function PasswordList() {
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1>Password Manager</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
-          Add Password
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <ImportExport organizationId={selectedOrgId} />
+          <button
+            onClick={() => setShowForm(true)}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Add Password
+          </button>
+        </div>
       </div>
+
+      <SearchBar
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        filters={filters}
+        onFilterChange={setFilters}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        sortDirection={sortDirection}
+        onSortDirectionChange={setSortDirection}
+      />
 
       {showForm && (
         <PasswordForm
@@ -87,8 +117,12 @@ export default function PasswordList() {
         />
       )}
 
+      <div style={{ marginBottom: '1rem', color: '#666' }}>
+        Showing {filteredPasswords.length} of {passwords.length} passwords
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
-        {passwords.map((password) => (
+        {filteredPasswords.map((password) => (
           <PasswordCard
             key={password.id}
             password={password}
@@ -98,6 +132,12 @@ export default function PasswordList() {
           />
         ))}
       </div>
+
+      {filteredPasswords.length === 0 && passwords.length > 0 && (
+        <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>
+          <p>No passwords match your search criteria.</p>
+        </div>
+      )}
 
       {passwords.length === 0 && (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>

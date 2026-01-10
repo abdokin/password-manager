@@ -10,7 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2024_01_10_000009) do
+ActiveRecord::Schema[8.1].define(version: 2024_01_10_000011) do
+  create_table "activity_logs", force: :cascade do |t|
+    t.string "action", null: false
+    t.datetime "created_at", null: false
+    t.text "details"
+    t.string "ip_address"
+    t.integer "organization_id"
+    t.integer "resource_id"
+    t.string "resource_type"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.integer "user_id"
+    t.index ["organization_id", "created_at"], name: "index_activity_logs_on_organization_id_and_created_at"
+    t.index ["organization_id"], name: "index_activity_logs_on_organization_id"
+    t.index ["user_id", "created_at"], name: "index_activity_logs_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_activity_logs_on_user_id"
+  end
+
   create_table "categories", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
@@ -69,6 +86,17 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_10_000009) do
     t.index ["user_id"], name: "index_passwords_on_user_id"
   end
 
+  create_table "subscriptions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "ends_at"
+    t.integer "organization_id", null: false
+    t.string "plan", default: "free", null: false
+    t.datetime "starts_at"
+    t.string "status", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id"], name: "index_subscriptions_on_organization_id"
+  end
+
   create_table "tags", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
@@ -105,6 +133,8 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_10_000009) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
+  add_foreign_key "activity_logs", "organizations"
+  add_foreign_key "activity_logs", "users"
   add_foreign_key "categories", "organizations"
   add_foreign_key "organization_members", "organizations"
   add_foreign_key "organization_members", "users"
@@ -113,6 +143,7 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_10_000009) do
   add_foreign_key "passwords", "categories"
   add_foreign_key "passwords", "organizations"
   add_foreign_key "passwords", "users"
+  add_foreign_key "subscriptions", "organizations"
   add_foreign_key "tags", "organizations"
   add_foreign_key "verification_tokens", "users"
 end
