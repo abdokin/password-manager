@@ -29,22 +29,23 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Navigation />
-        <Routes>
-          <Route path="/" element={<PasswordList />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/environments" element={<EnvironmentsList organizationId={1} />} />
-          <Route path="/environments/:id" element={<EnvironmentDetail organizationId={1} environmentId={parseInt(window.location.pathname.split('/').pop() || '1')} />} />
-          <Route path="/pricing" element={<PricingPlans organizationId={1} />} />
-          <Route path="/team" element={<TeamManagement organizationId={1} />} />
-          <Route path="/api-keys" element={<ApiKeys organizationId={1} />} />
-          <Route path="/notifications" element={<Notifications organizationId={1} />} />
-          <Route path="/analytics" element={<Analytics organizationId={1} />} />
-          <Route path="/invoices" element={<Invoices organizationId={1} />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/feature-flags" element={<FeatureFlags organizationId={1} />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Routes>
+        <div className="min-h-screen bg-background">
+          <Navigation />
+          <Routes>
+            <Route path="/" element={<PasswordList />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/environments" element={<EnvironmentsList organizationId={1} />} />
+            <Route path="/environments/:id" element={<EnvironmentDetail organizationId={1} environmentId={parseInt(window.location.pathname.split('/').pop() || '1')} />} />
+            <Route path="/pricing" element={<PricingPlans organizationId={1} />} />
+            <Route path="/team" element={<TeamManagement organizationId={1} />} />
+            <Route path="/api-keys" element={<ApiKeys organizationId={1} />} />
+            <Route path="/notifications" element={<Notifications organizationId={1} />} />
+            <Route path="/analytics" element={<Analytics organizationId={1} />} />
+            <Route path="/invoices" element={<Invoices organizationId={1} />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/feature-flags" element={<FeatureFlags organizationId={1} />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Routes>
         </div>
       </BrowserRouter>
     </QueryClientProvider>
