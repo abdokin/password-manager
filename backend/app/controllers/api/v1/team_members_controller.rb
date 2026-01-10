@@ -16,6 +16,15 @@ module Api
           m.role = params[:role] || 'member'
         end
         
+        NotificationService.create(
+          user,
+          "Added to Organization",
+          "You have been added to '#{@organization.name}' as #{member.role}",
+          notification_type: 'info',
+          organization: @organization,
+          action_url: "/organizations/#{@organization.id}"
+        )
+        
         render json: { id: member.id, user: member.user, role: member.role }, status: :created
       end
       

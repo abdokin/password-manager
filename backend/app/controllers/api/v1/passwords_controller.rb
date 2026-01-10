@@ -36,6 +36,13 @@ module Api
       def create
         @password = Password.new(password_params)
         if @password.save
+          NotificationService.create(
+            current_user,
+            "Password Created",
+            "Password '#{@password.name}' has been created",
+            notification_type: 'success',
+            organization: @password.organization
+          )
           render json: @password, status: :created
         else
           render json: @password.errors, status: :unprocessable_entity
@@ -51,7 +58,15 @@ module Api
       end
 
       def destroy
+        password_name = @password.name
         @password.destroy
+        NotificationService.create(
+          current_user,
+          "Password Deleted",
+          "Password '#{password_name}' has been deleted",
+          notification_type: 'info',
+          organization: @password.organization
+        )
         head :no_content
       end
 

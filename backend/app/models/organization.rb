@@ -7,6 +7,8 @@ class Organization < ApplicationRecord
   has_many :categories, dependent: :destroy
   has_many :tags, dependent: :destroy
   has_many :payments, dependent: :destroy
+  has_many :environments, dependent: :destroy
+  has_many :notifications, dependent: :destroy
 
   validates :name, presence: true
   

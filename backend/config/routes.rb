@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount ActionCable.server => '/cable'
+  
   namespace :api do
     namespace :v1 do
       post "auth/magic_link", to: "auth#magic_link"

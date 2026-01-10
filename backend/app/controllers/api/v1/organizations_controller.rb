@@ -14,6 +14,14 @@ module Api
       def create
         @organization = Organization.new(organization_params)
         if @organization.save
+          OrganizationMember.create!(organization: @organization, user: current_user, role: 'owner')
+          NotificationService.create(
+            current_user,
+            "Organization Created",
+            "Organization '#{@organization.name}' has been created",
+            notification_type: 'success',
+            organization: @organization
+          )
           render json: @organization, status: :created
         else
           render json: @organization.errors, status: :unprocessable_entity

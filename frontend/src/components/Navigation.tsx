@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import NotificationBell from '@/components/NotificationBell';
 
 export default function Navigation() {
   const location = useLocation();
@@ -66,6 +67,9 @@ export default function Navigation() {
           >
             Settings
           </Link>
+        </div>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
         </div>
       </div>
     </nav>

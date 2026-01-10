@@ -19,6 +19,21 @@ class Password < ApplicationRecord
   after_save :check_weak_password
   after_create :track_usage
   
+  after_update :notify_if_breached
+  
+  def notify_if_breached
+    if saved_change_to_is_breached? && is_breached
+      NotificationService.create(
+        user,
+        "Security Alert: Breached Password",
+        "Password '#{name}' has been found in a data breach. Please change it immediately.",
+        notification_type: 'error',
+        organization: organization,
+        action_url: "/passwords/#{id}"
+      )
+    end
+  end
+  
   scope :for_organization, ->(org_id) { where(organization_id: org_id) }
   scope :for_user, ->(user_id) { where(user_id: user_id) }
   scope :favorites, -> { where(favorite: true) }
