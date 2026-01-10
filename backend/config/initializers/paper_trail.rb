@@ -1,0 +1,1 @@
+PaperTrail.config.enabled = true

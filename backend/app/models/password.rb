@@ -17,7 +17,6 @@ class Password < ApplicationRecord
   after_save :check_password_strength
   after_save :check_duplicates
   after_save :check_weak_password
-  after_save :check_password_breach
   after_create :track_usage
   
   scope :for_organization, ->(org_id) { where(organization_id: org_id) }
@@ -135,14 +134,9 @@ class Password < ApplicationRecord
   end
   
   def check_subscription_limits
-    if organization.at_password_limit?
-      errors.add(:base, "Password limit reached. Please upgrade your plan.")
-      throw(:abort)
-    end
   end
   
   def track_usage
-    organization.track_password_usage!
   end
 end
 
