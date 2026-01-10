@@ -1,7 +1,8 @@
 import axios from 'axios';
 import type { Password, Organization, Category, Tag } from '@/types';
+import type { Environment, EnvironmentVariable } from '@/types/environment';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api/v1';
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -188,5 +189,3 @@ export const api = {
   },
 };
 
-import type { Password, Organization, Category, Tag } from '../types';
-import type { Environment, EnvironmentVariable } from '../types/environment';
