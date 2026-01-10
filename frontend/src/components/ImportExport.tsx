@@ -56,7 +56,7 @@ export default function ImportExport({ organizationId }: ImportExportProps) {
     setImporting(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/organizations/${organizationId}/import`,
+        `${(import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api/v1'}/organizations/${organizationId}/import`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

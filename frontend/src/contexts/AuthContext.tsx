@@ -39,21 +39,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: userData, isLoading } = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: async () => {
-      const response = await api.auth.me();
-      return response.user;
+      try {
+        const response = await api.auth.me();
+        return response.user;
+      } catch (error) {
+        setToken(null);
+        setUser(null);
+        localStorage.removeItem('auth_token');
+        throw error;
+      }
     },
     enabled: !!token,
     retry: false,
-    onError: () => {
-      setToken(null);
-      setUser(null);
-      localStorage.removeItem('auth_token');
-    },
   });
 
   useEffect(() => {
     if (userData) {
-      setUser(userData);
+      setUser(userData as User);
     }
   }, [userData]);
 
