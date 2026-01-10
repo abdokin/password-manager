@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,6 +9,8 @@ import AdminOrganizations from '@/components/admin/AdminOrganizations';
 import AdminActivityLogs from '@/components/admin/AdminActivityLogs';
 
 export default function AdminDashboard() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'users';
   const { data: stats, isLoading } = useQuery({
     queryKey: ['admin_stats'],
     queryFn: () => api.admin.getStats(),
@@ -134,7 +137,7 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      <Tabs defaultValue="users" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={(value) => setSearchParams({ tab: value })} className="space-y-4">
         <TabsList>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="organizations">Organizations</TabsTrigger>

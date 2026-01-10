@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,8 @@ import { Bell, Shield, User } from 'lucide-react';
 
 export default function Settings() {
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'general';
 
   const { data: userSettings = [] } = useQuery({
     queryKey: ['user_settings'],
@@ -34,7 +37,7 @@ export default function Settings() {
         <p className="text-muted-foreground mt-1">Manage your account and application preferences</p>
       </div>
 
-      <Tabs defaultValue="general" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={(value) => setSearchParams({ tab: value })} className="space-y-4">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>

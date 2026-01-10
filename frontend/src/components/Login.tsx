@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,11 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function Login() {
   const { login, magicLink, verify } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'password';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [magicLinkToken, setMagicLinkToken] = useState('');
@@ -90,7 +92,7 @@ export default function Login() {
             <CardDescription className="text-center">Sign in to your account</CardDescription>
           </CardHeader>
         <CardContent>
-          <Tabs defaultValue="password" className="w-full">
+          <Tabs value={activeTab} onValueChange={(value) => setSearchParams({ tab: value })} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="password">Password</TabsTrigger>
               <TabsTrigger value="magic">Magic Link</TabsTrigger>
