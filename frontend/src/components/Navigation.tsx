@@ -26,6 +26,14 @@ export default function Navigation() {
           >
             Dashboard
           </Link>
+          <Link
+            to="/environments"
+            className={`px-4 py-2 rounded ${
+              location.pathname.startsWith('/environments') ? 'text-yellow-400 bg-white/10' : 'text-white'
+            } no-underline`}
+          >
+            Environments
+          </Link>
         </div>
       </div>
     </nav>

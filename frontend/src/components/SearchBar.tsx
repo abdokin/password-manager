@@ -1,4 +1,7 @@
-import type { Password } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Star, AlertTriangle, Copy, Shield, Clock } from 'lucide-react';
 
 interface SearchBarProps {
   searchTerm: string;
@@ -32,115 +35,83 @@ export default function SearchBar({
   };
 
   return (
-    <div style={{ marginBottom: '2rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-      <div style={{ marginBottom: '1rem' }}>
-        <input
-          type="text"
-          placeholder="Search passwords..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '1rem',
-          }}
-        />
-      </div>
+    <Card className="mb-6">
+      <CardContent className="pt-6">
+        <div className="space-y-4">
+          <div>
+            <Input
+              type="text"
+              placeholder="Search passwords by name, username, URL, or notes..."
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="w-full"
+            />
+          </div>
 
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => toggleFilter('favorite')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: filters.favorite ? '#ffc107' : '#fff',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            ⭐ Favorites
-          </button>
-          <button
-            onClick={() => toggleFilter('breached')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: filters.breached ? '#dc3545' : '#fff',
-              color: filters.breached ? '#fff' : '#000',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            ⚠️ Breached
-          </button>
-          <button
-            onClick={() => toggleFilter('duplicate')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: filters.duplicate ? '#ffc107' : '#fff',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            🔄 Duplicates
-          </button>
-          <button
-            onClick={() => toggleFilter('weak')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: filters.weak ? '#dc3545' : '#fff',
-              color: filters.weak ? '#fff' : '#000',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            ⚠️ Weak
-          </button>
-          <button
-            onClick={() => toggleFilter('expired')}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: filters.expired ? '#dc3545' : '#fff',
-              color: filters.expired ? '#fff' : '#000',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            ⏰ Expired
-          </button>
-        </div>
+          <div className="flex flex-wrap gap-2 items-center">
+            <Button
+              variant={filters.favorite ? "default" : "outline"}
+              size="sm"
+              onClick={() => toggleFilter('favorite')}
+            >
+              <Star className="w-4 h-4 mr-1" />
+              Favorites
+            </Button>
+            <Button
+              variant={filters.breached ? "destructive" : "outline"}
+              size="sm"
+              onClick={() => toggleFilter('breached')}
+            >
+              <AlertTriangle className="w-4 h-4 mr-1" />
+              Breached
+            </Button>
+            <Button
+              variant={filters.duplicate ? "default" : "outline"}
+              size="sm"
+              onClick={() => toggleFilter('duplicate')}
+            >
+              <Copy className="w-4 h-4 mr-1" />
+              Duplicates
+            </Button>
+            <Button
+              variant={filters.weak ? "destructive" : "outline"}
+              size="sm"
+              onClick={() => toggleFilter('weak')}
+            >
+              <Shield className="w-4 h-4 mr-1" />
+              Weak
+            </Button>
+            <Button
+              variant={filters.expired ? "destructive" : "outline"}
+              size="sm"
+              onClick={() => toggleFilter('expired')}
+            >
+              <Clock className="w-4 h-4 mr-1" />
+              Expired
+            </Button>
 
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginLeft: 'auto' }}>
-          <select
-            value={sortBy}
-            onChange={(e) => onSortChange(e.target.value)}
-            style={{ padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
-          >
-            <option value="created_at">Date</option>
-            <option value="name">Name</option>
-            <option value="strength_score">Strength</option>
-          </select>
-          <button
-            onClick={() => onSortDirectionChange(sortDirection === 'asc' ? 'desc' : 'asc')}
-            style={{
-              padding: '0.5rem',
-              backgroundColor: '#fff',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            {sortDirection === 'asc' ? '↑' : '↓'}
-          </button>
+            <div className="flex items-center gap-2 ml-auto">
+              <Select value={sortBy} onValueChange={onSortChange}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="created_at">Date</SelectItem>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="strength_score">Strength</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => onSortDirectionChange(sortDirection === 'asc' ? 'desc' : 'asc')}
+              >
+                {sortDirection === 'asc' ? '↑' : '↓'}
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
-

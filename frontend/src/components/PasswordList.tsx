@@ -5,6 +5,9 @@ import PasswordForm from '@/components/PasswordForm';
 import SearchBar from '@/components/SearchBar';
 import ImportExport from '@/components/ImportExport';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import { usePasswords, useCreatePassword, useUpdatePassword, useDeletePassword, useToggleFavorite } from '@/hooks/usePasswords';
 import { useSearch } from '@/hooks/useSearch';
 
@@ -71,24 +74,18 @@ export default function PasswordList() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Password Manager</h1>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Password Manager</h1>
+          <p className="text-muted-foreground mt-1">Securely manage your passwords and credentials</p>
+        </div>
+        <div className="flex gap-2">
           <ImportExport organizationId={selectedOrgId} />
-          <button
-            onClick={() => setShowForm(true)}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="w-4 h-4 mr-2" />
             Add Password
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -102,6 +99,10 @@ export default function PasswordList() {
         sortDirection={sortDirection}
         onSortDirectionChange={setSortDirection}
       />
+
+      <div className="mb-4 text-sm text-muted-foreground">
+        Showing {filteredPasswords.length} of {passwords.length} passwords
+      </div>
 
       {showForm && (
         <PasswordForm
@@ -118,11 +119,7 @@ export default function PasswordList() {
         />
       )}
 
-      <div style={{ marginBottom: '1rem', color: '#666' }}>
-        Showing {filteredPasswords.length} of {passwords.length} passwords
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredPasswords.map((password) => (
           <PasswordCard
             key={password.id}
@@ -135,17 +132,29 @@ export default function PasswordList() {
       </div>
 
       {filteredPasswords.length === 0 && passwords.length > 0 && (
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>
-          <p>No passwords match your search criteria.</p>
-        </div>
+        <Card className="mt-8">
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No passwords match your search criteria.</p>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {passwords.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>
-          <p>No passwords yet. Click "Add Password" to get started.</p>
-        </div>
+        <Card className="mt-8">
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <h3 className="text-lg font-semibold mb-2">No passwords yet</h3>
+              <p className="text-muted-foreground mb-4">Click "Add Password" to get started.</p>
+              <Button onClick={() => setShowForm(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Your First Password
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
 }
-
