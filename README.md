@@ -1,6 +1,6 @@
 # Password Manager SaaS
 
-A full-featured password manager built with Rails 8 API backend and React frontend with Tailwind CSS v4 and shadcn/ui.
+A full-featured password manager and secrets management platform built with Rails 8 API backend and React frontend with Tailwind CSS v4 and shadcn/ui.
 
 ## Features
 
@@ -19,6 +19,20 @@ A full-featured password manager built with Rails 8 API backend and React fronte
 - 📦 Bulk operations
 - ⚙️ User settings and preferences
 
+### Environment Management (NEW!)
+- 🌍 Multi-environment support (dev, staging, production, test)
+- 🔐 Encrypted environment variables
+- 👥 Team access control with roles (viewer, editor, admin)
+- 🔒 Secure variable storage
+- 📝 Variable versioning and history
+
+### Payment System (NEW!)
+- 💳 Pluggable payment provider architecture
+- 🔌 Multiple provider support (Stripe, PayPal, Mock)
+- 📋 Subscription management
+- 💰 Flexible pricing plans
+- 🔄 Easy provider switching
+
 ### Security Features
 - 🔑 JWT-based authentication
 - 🛡️ Rate limiting
@@ -27,7 +41,7 @@ A full-featured password manager built with Rails 8 API backend and React fronte
 - 🚨 Security alerts
 
 ### SaaS Features
-- 💳 Subscription management
+- 💳 Subscription management with pluggable providers
 - 👨‍💼 Organization management
 - 📊 Analytics dashboard
 - 🔔 Activity logs
@@ -52,6 +66,32 @@ A full-featured password manager built with Rails 8 API backend and React fronte
 - **Tailwind CSS v4** for styling
 - **shadcn/ui** for components
 - **Vite** for building
+
+## Payment Providers
+
+The payment system is designed to be pluggable and provider-agnostic. Currently supported:
+
+1. **Mock Provider** (default) - For development and testing
+2. **Stripe** - Full Stripe integration
+3. **PayPal** - PayPal payment processing
+
+### Adding a New Payment Provider
+
+1. Create a new provider class in `backend/app/services/payment_providers/`
+2. Inherit from `PaymentProviders::BaseProvider`
+3. Implement all required methods
+4. Register in `PaymentProviders::Factory`
+
+Example:
+```ruby
+class PaymentProviders::YourProvider < PaymentProviders::BaseProvider
+  def create_customer(email, name)
+    # Your implementation
+  end
+  
+  # Implement other required methods...
+end
+```
 
 ## Setup
 
@@ -81,6 +121,10 @@ npm run dev
 ```
 
 The frontend will run on `http://localhost:5173`
+
+### Environment Variables
+
+See `.env.example` files in `backend/` and `frontend/` directories for required environment variables.
 
 ### Running Tests
 
@@ -112,6 +156,9 @@ kamal deploy
 - `RAILS_MASTER_KEY` - Rails master key for credentials
 - `POSTGRES_PASSWORD` - Database password
 - `KAMAL_REGISTRY_PASSWORD` - Container registry password
+- `DEFAULT_PAYMENT_PROVIDER` - Payment provider (stripe, paypal, mock)
+- `STRIPE_SECRET_KEY` - Stripe secret key (if using Stripe)
+- `PAYPAL_CLIENT_ID` - PayPal client ID (if using PayPal)
 
 ## CI/CD
 
@@ -128,28 +175,20 @@ GitHub Actions workflow is configured in `.github/workflows/ci.yml`:
 - `POST /api/v1/auth/login` - Login with email
 - `GET /api/v1/auth/me` - Get current user
 
-### Passwords
-- `GET /api/v1/passwords` - List passwords (with search/filter)
-- `POST /api/v1/passwords` - Create password
-- `GET /api/v1/passwords/:id` - Get password
-- `PUT /api/v1/passwords/:id` - Update password
-- `DELETE /api/v1/passwords/:id` - Delete password
-- `POST /api/v1/passwords/:id/toggle_favorite` - Toggle favorite
+### Payments
+- `GET /api/v1/organizations/:id/payments/plans` - Get available plans
+- `POST /api/v1/organizations/:id/payments/checkout` - Create checkout session
+- `GET /api/v1/organizations/:id/payments/subscription` - Get subscription
+- `POST /api/v1/organizations/:id/payments/cancel` - Cancel subscription
+- `POST /api/v1/organizations/:id/payments/webhook` - Payment webhook
 
-### Bulk Operations
-- `POST /api/v1/bulk/delete` - Delete multiple passwords
-- `POST /api/v1/bulk/toggle_favorite` - Toggle favorite for multiple
-- `POST /api/v1/bulk/move_to_category` - Move to category
-
-### Password Sharing
-- `GET /api/v1/password_shares` - List shared passwords
-- `POST /api/v1/password_shares` - Share password
-- `DELETE /api/v1/password_shares/:id` - Unshare password
-
-### User Settings
-- `GET /api/v1/user_settings` - Get all settings
-- `POST /api/v1/user_settings` - Create setting
-- `PUT /api/v1/user_settings/:key` - Update setting
+### Environments
+- `GET /api/v1/organizations/:id/environments` - List environments
+- `POST /api/v1/organizations/:id/environments` - Create environment
+- `GET /api/v1/organizations/:id/environments/:env_id/variables` - List variables
+- `POST /api/v1/organizations/:id/environments/:env_id/variables` - Add variable
+- `GET /api/v1/organizations/:id/environments/:env_id/variables/:key` - Get variable value
+- `POST /api/v1/organizations/:id/environments/:env_id/accesses` - Grant access
 
 ## License
 
