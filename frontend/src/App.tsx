@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PasswordList from '@/components/PasswordList';
 import Dashboard from '@/components/Dashboard';
 import Navigation from '@/components/Navigation';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import '@/index.css';
 
 const queryClient = new QueryClient({

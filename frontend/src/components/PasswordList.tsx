@@ -4,6 +4,7 @@ import PasswordCard from '@/components/PasswordCard';
 import PasswordForm from '@/components/PasswordForm';
 import SearchBar from '@/components/SearchBar';
 import ImportExport from '@/components/ImportExport';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { usePasswords, useCreatePassword, useUpdatePassword, useDeletePassword, useToggleFavorite } from '@/hooks/usePasswords';
 import { useSearch } from '@/hooks/useSearch';
 
@@ -66,7 +67,7 @@ export default function PasswordList() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   return (

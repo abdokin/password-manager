@@ -44,7 +44,6 @@ module Api
         errors = []
         
         if format == 'csv'
-          require 'csv'
           csv = CSV.parse(data, headers: true)
           csv.each_with_index do |row, index|
             password = Password.new(

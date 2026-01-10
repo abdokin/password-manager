@@ -4,47 +4,25 @@ export default function Navigation() {
   const location = useLocation();
 
   return (
-    <nav
-      style={{
-        backgroundColor: '#343a40',
-        padding: '1rem 2rem',
-        marginBottom: '2rem',
-      }}
-    >
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-        <Link
-          to="/"
-          style={{
-            color: 'white',
-            textDecoration: 'none',
-            fontWeight: 'bold',
-            fontSize: '1.2rem',
-          }}
-        >
+    <nav className="bg-gray-800 px-8 py-4 mb-8">
+      <div className="flex items-center gap-8">
+        <Link to="/" className="text-white font-bold text-xl no-underline">
           Password Manager
         </Link>
-        <div style={{ display: 'flex', gap: '1rem', marginLeft: 'auto' }}>
+        <div className="flex gap-4 ml-auto">
           <Link
             to="/"
-            style={{
-              color: location.pathname === '/' ? '#ffc107' : 'white',
-              textDecoration: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              backgroundColor: location.pathname === '/' ? 'rgba(255,255,255,0.1)' : 'transparent',
-            }}
+            className={`px-4 py-2 rounded ${
+              location.pathname === '/' ? 'text-yellow-400 bg-white/10' : 'text-white'
+            } no-underline`}
           >
             Passwords
           </Link>
           <Link
             to="/dashboard"
-            style={{
-              color: location.pathname === '/dashboard' ? '#ffc107' : 'white',
-              textDecoration: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              backgroundColor: location.pathname === '/dashboard' ? 'rgba(255,255,255,0.1)' : 'transparent',
-            }}
+            className={`px-4 py-2 rounded ${
+              location.pathname === '/dashboard' ? 'text-yellow-400 bg-white/10' : 'text-white'
+            } no-underline`}
           >
             Dashboard
           </Link>
@@ -53,4 +31,3 @@ export default function Navigation() {
     </nav>
   );
 }
-
