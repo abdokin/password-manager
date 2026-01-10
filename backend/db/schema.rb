@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2024_01_10_000025) do
+ActiveRecord::Schema[8.1].define(version: 2024_01_10_000026) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.datetime "created_at", null: false
@@ -269,6 +269,7 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_10_000025) do
     t.datetime "created_at", null: false
     t.string "email"
     t.string "name"
+    t.string "password_digest"
     t.string "role", default: "user"
     t.datetime "updated_at", null: false
     t.index ["role"], name: "index_users_on_role"

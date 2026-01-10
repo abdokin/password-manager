@@ -113,7 +113,7 @@ categories_data = [
 ]
 
 created_categories = categories_data.map do |cat_data|
-  Category.find_or_create_by(name: cat_data[:name], organization: cat_data[:organization])
+  Category.find_or_create_by(name: cat_data[:name], organization_id: cat_data[:organization].id)
 end
 
 puts "✅ Created #{created_categories.count} categories"
@@ -131,7 +131,7 @@ tags_data = [
 ]
 
 created_tags = tags_data.map do |tag_data|
-  Tag.find_or_create_by(name: tag_data[:name], organization: tag_data[:organization])
+  Tag.find_or_create_by(name: tag_data[:name], organization_id: tag_data[:organization].id)
 end
 
 puts "✅ Created #{created_tags.count} tags"
