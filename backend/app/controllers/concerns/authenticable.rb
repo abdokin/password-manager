@@ -8,6 +8,8 @@ module Authenticable
   private
 
   def authenticate_user!
+    return true if skip_authentication?
+    
     token = extract_token_from_header
     return render_unauthorized("Token missing") unless token
 
@@ -18,6 +20,10 @@ module Authenticable
     return render_unauthorized("User not found") unless @current_user
 
     @current_user
+  end
+  
+  def skip_authentication?
+    false
   end
 
   def current_user

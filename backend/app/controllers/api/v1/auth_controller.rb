@@ -3,6 +3,10 @@ module Api
     class AuthController < ApplicationController
       skip_before_action :authenticate_user!, only: [:login, :magic_link, :verify]
       
+      def skip_authentication?
+        action_name.in?(['login', 'magic_link', 'verify'])
+      end
+      
       def magic_link
         email = params[:email]
         return render_error(message: "Email is required", status: :bad_request) unless email.present?
@@ -55,10 +59,20 @@ module Api
         email = params[:email] || params.dig(:auth, :email)
         password = params[:password] || params.dig(:auth, :password)
         
-        return render_error(message: "Email and password required", status: :bad_request) unless email.present? && password.present?
+        unless email.present? && password.present?
+          return render_error(message: "Email and password required", status: :bad_request)
+        end
         
         user = User.find_by(email: email)
-        return render_unauthorized("Invalid credentials") unless user&.authenticate(password)
+        unless user
+          Rails.logger.error "Login failed: User not found for email: #{email}"
+          return render_unauthorized("Invalid credentials")
+        end
+        
+        unless user.authenticate(password)
+          Rails.logger.error "Login failed: Password incorrect for email: #{email}"
+          return render_unauthorized("Invalid credentials")
+        end
         
         jwt_token = JwtService.encode({ user_id: user.id, email: user.email })
         
