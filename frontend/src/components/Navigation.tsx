@@ -42,6 +42,30 @@ export default function Navigation() {
           >
             Pricing
           </Link>
+          <Link
+            to="/team"
+            className={`px-4 py-2 rounded ${
+              location.pathname === '/team' ? 'text-yellow-400 bg-white/10' : 'text-white'
+            } no-underline`}
+          >
+            Team
+          </Link>
+          <Link
+            to="/analytics"
+            className={`px-4 py-2 rounded ${
+              location.pathname === '/analytics' ? 'text-yellow-400 bg-white/10' : 'text-white'
+            } no-underline`}
+          >
+            Analytics
+          </Link>
+          <Link
+            to="/settings"
+            className={`px-4 py-2 rounded ${
+              location.pathname === '/settings' ? 'text-yellow-400 bg-white/10' : 'text-white'
+            } no-underline`}
+          >
+            Settings
+          </Link>
         </div>
       </div>
     </nav>

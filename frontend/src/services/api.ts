@@ -88,6 +88,54 @@ export const api = {
     cancelSubscription: (organizationId: number) =>
       apiClient.post<{ message: string }>(`/organizations/${organizationId}/payments/cancel`).then(res => res.data),
   },
+  teamMembers: {
+    list: (organizationId: number) =>
+      apiClient.get<any[]>(`/organizations/${organizationId}/team_members`).then(res => res.data),
+    create: (organizationId: number, data: { email: string; role: string }) =>
+      apiClient.post<any>(`/organizations/${organizationId}/team_members`, data).then(res => res.data),
+    update: (organizationId: number, id: number, role: string) =>
+      apiClient.put<any>(`/organizations/${organizationId}/team_members/${id}`, { role }).then(res => res.data),
+    delete: (organizationId: number, id: number) =>
+      apiClient.delete(`/organizations/${organizationId}/team_members/${id}`).then(() => undefined),
+  },
+  apiKeys: {
+    list: (organizationId?: number) => {
+      const url = organizationId ? `/api_keys?organization_id=${organizationId}` : '/api_keys';
+      return apiClient.get<any[]>(url).then(res => res.data);
+    },
+    create: (data: { name: string; organization_id?: number }) =>
+      apiClient.post<any>('/api_keys', data).then(res => res.data),
+    revoke: (key: string) =>
+      apiClient.post<{ message: string }>(`/api_keys/${key}/revoke`).then(res => res.data),
+  },
+  notifications: {
+    list: (organizationId?: number, unread?: boolean) => {
+      const params = new URLSearchParams();
+      if (organizationId) params.append('organization_id', organizationId.toString());
+      if (unread) params.append('unread', 'true');
+      return apiClient.get<any[]>(`/notifications?${params}`).then(res => res.data);
+    },
+    markAsRead: (id: number) =>
+      apiClient.post<{ message: string }>(`/notifications/${id}/read`).then(res => res.data),
+    markAllAsRead: () =>
+      apiClient.post<{ message: string }>('/notifications/read_all').then(res => res.data),
+  },
+  invoices: {
+    list: (organizationId: number) =>
+      apiClient.get<any[]>(`/organizations/${organizationId}/invoices`).then(res => res.data),
+    get: (organizationId: number, id: number) =>
+      apiClient.get<any>(`/organizations/${organizationId}/invoices/${id}`).then(res => res.data),
+    download: (organizationId: number, id: number) =>
+      apiClient.get<any>(`/organizations/${organizationId}/invoices/${id}/download`).then(res => res.data),
+  },
+  analytics: {
+    getUsage: (organizationId: number, startDate?: string, endDate?: string) => {
+      const params = new URLSearchParams();
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
+      return apiClient.get<any>(`/organizations/${organizationId}/analytics/usage?${params}`).then(res => res.data);
+    },
+  },
 };
 
 import type { Password, Organization, Category, Tag } from '../types';

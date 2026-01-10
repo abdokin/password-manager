@@ -22,6 +22,14 @@ Rails.application.routes.draw do
         end
         post "payments/webhook", to: "payments#webhook"
         
+        resources :team_members, only: [:index, :create, :update, :destroy]
+        resources :invoices, only: [:index, :show] do
+          member do
+            get "download", to: "invoices#download"
+          end
+        end
+        get "analytics/usage", to: "analytics#usage"
+        
         resources :passwords, only: [:index, :show, :create, :update, :destroy] do
           member do
             post :toggle_favorite
@@ -52,6 +60,19 @@ Rails.application.routes.draw do
       resources :activity_logs, only: [:index]
       resources :password_shares, only: [:index, :create, :destroy]
       resources :user_settings, only: [:index, :show, :create, :update]
+      resources :api_keys, only: [:index, :create] do
+        member do
+          post "revoke", to: "api_keys#revoke"
+        end
+      end
+      resources :notifications, only: [:index] do
+        member do
+          post "read", to: "notifications#mark_as_read"
+        end
+        collection do
+          post "read_all", to: "notifications#mark_all_as_read"
+        end
+      end
       
       post "bulk/delete", to: "bulk_operations#delete"
       post "bulk/toggle_favorite", to: "bulk_operations#toggle_favorite"
