@@ -4,18 +4,28 @@
 
 puts "🌱 Starting seed process..."
 
-# Clear existing data (optional - comment out if you want to keep existing data)
 if Rails.env.development?
   puts "🧹 Clearing existing data..."
+  # Disable foreign key checks for SQLite to allow deletion in any order
+  if ActiveRecord::Base.connection.adapter_name == 'SQLite'
+    ActiveRecord::Base.connection.execute("PRAGMA foreign_keys = OFF")
+  end
+  
   # Delete in order to respect foreign key constraints (children first, then parents)
+  # Using delete_all for faster deletion without callbacks
   [PasswordTag, Password, Tag, Category, EnvironmentVariable, EnvironmentAccess, Environment, 
    OrganizationMember, Subscription, Payment, Invoice, Notification, 
    ApiKey, UserSetting, VerificationToken, Organization, User].each do |model|
     begin
-      model.destroy_all
+      model.delete_all
     rescue => e
       puts "  ⚠️  Could not clear #{model.name}: #{e.message}"
     end
+  end
+  
+  # Re-enable foreign key checks
+  if ActiveRecord::Base.connection.adapter_name == 'SQLite'
+    ActiveRecord::Base.connection.execute("PRAGMA foreign_keys = ON")
   end
 end
 
