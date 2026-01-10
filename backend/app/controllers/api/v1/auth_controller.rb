@@ -51,6 +51,8 @@ module Api
       
       def me
         render json: { user: { id: current_user.id, email: current_user.email, name: current_user.name, role: current_user.role } }
+      rescue => e
+        render json: { error: "Unauthorized" }, status: :unauthorized
       end
     end
   end

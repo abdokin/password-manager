@@ -13,7 +13,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function NotificationBell() {
   const [token, setToken] = useState<string | null>(null);
-  const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3000/cable';
   
   useEffect(() => {
     // Get token from localStorage or API
@@ -23,8 +22,8 @@ export default function NotificationBell() {
     }
   }, []);
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-  const { isConnected, messages } = useActionCable(apiUrl, 'NotificationsChannel', token || undefined);
+  const apiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
+  const { messages } = useActionCable(apiUrl, 'NotificationsChannel', token || undefined);
   const queryClient = useQueryClient();
 
   const { data: notifications = [] } = useQuery({

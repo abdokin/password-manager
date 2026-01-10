@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import PasswordList from '@/components/PasswordList';
 import Dashboard from '@/components/Dashboard';
 import EnvironmentsList from '@/components/EnvironmentsList';
@@ -14,6 +15,9 @@ import Settings from '@/components/Settings';
 import FeatureFlags from '@/components/FeatureFlags';
 import AdminDashboard from '@/components/AdminDashboard';
 import Navigation from '@/components/Navigation';
+import Login from '@/components/Login';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import '@/index.css';
 
 const queryClient = new QueryClient({
@@ -25,29 +29,136 @@ const queryClient = new QueryClient({
   },
 });
 
+function AppRoutes() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  return (
+    <Routes>
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <PasswordList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/environments"
+        element={
+          <ProtectedRoute>
+            <EnvironmentsList organizationId={1} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/environments/:id"
+        element={
+          <ProtectedRoute>
+            <EnvironmentDetail organizationId={1} environmentId={parseInt(window.location.pathname.split('/').pop() || '1')} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pricing"
+        element={
+          <ProtectedRoute>
+            <PricingPlans organizationId={1} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/team"
+        element={
+          <ProtectedRoute>
+            <TeamManagement organizationId={1} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/api-keys"
+        element={
+          <ProtectedRoute>
+            <ApiKeys organizationId={1} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <Notifications organizationId={1} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <Analytics organizationId={1} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/invoices"
+        element={
+          <ProtectedRoute>
+            <Invoices organizationId={1} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/feature-flags"
+        element={
+          <ProtectedRoute>
+            <FeatureFlags organizationId={1} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <div className="min-h-screen bg-background">
-          <Navigation />
-          <Routes>
-            <Route path="/" element={<PasswordList />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/environments" element={<EnvironmentsList organizationId={1} />} />
-            <Route path="/environments/:id" element={<EnvironmentDetail organizationId={1} environmentId={parseInt(window.location.pathname.split('/').pop() || '1')} />} />
-            <Route path="/pricing" element={<PricingPlans organizationId={1} />} />
-            <Route path="/team" element={<TeamManagement organizationId={1} />} />
-            <Route path="/api-keys" element={<ApiKeys organizationId={1} />} />
-            <Route path="/notifications" element={<Notifications organizationId={1} />} />
-            <Route path="/analytics" element={<Analytics organizationId={1} />} />
-            <Route path="/invoices" element={<Invoices organizationId={1} />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/feature-flags" element={<FeatureFlags organizationId={1} />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="min-h-screen bg-background">
+            <Navigation />
+            <AppRoutes />
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

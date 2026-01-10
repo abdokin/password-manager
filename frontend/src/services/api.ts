@@ -11,6 +11,27 @@ const apiClient = axios.create({
   },
 });
 
+// Add auth token to requests
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Handle 401 errors
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth_token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const api = {
   passwords: {
     list: () => apiClient.get<Password[]>('/passwords').then(res => res.data),
@@ -38,7 +59,9 @@ export const api = {
   },
   auth: {
     magicLink: (email: string) => apiClient.post<{ message: string; token: string }>('/auth/magic_link', { email }).then(res => res.data),
-    verify: (token: string) => apiClient.post<{ user_id: number; email: string }>('/auth/verify', { token }).then(res => res.data),
+    verify: (token: string) => apiClient.post<{ token: string; user: User }>('/auth/verify', { token }).then(res => res.data),
+    login: (email: string, password: string) => apiClient.post<{ token: string; user: User }>('/auth/login', { email, password }).then(res => res.data),
+    me: () => apiClient.get<{ user: User }>('/auth/me').then(res => res.data),
   },
   passwordGenerator: {
     generate: (options: { length?: number; include_uppercase?: boolean; include_lowercase?: boolean; include_numbers?: boolean; include_symbols?: boolean }) =>

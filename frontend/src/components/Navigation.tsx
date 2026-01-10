@@ -1,5 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import NotificationBell from '@/components/NotificationBell';
+import { Button } from '@/components/ui/button';
+import { LogOut } from 'lucide-react';
 
 export default function Navigation() {
   const location = useLocation();
