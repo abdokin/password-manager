@@ -2,10 +2,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import NotificationBell from '@/components/NotificationBell';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 
 export default function Navigation() {
   const location = useLocation();
+  const { user, logout, isAdmin } = useAuth();
 
   return (
     <nav className="bg-gray-800 px-8 py-4 mb-8">
@@ -78,16 +79,35 @@ export default function Navigation() {
           >
             Feature Flags
           </Link>
-          <Link
-            to="/admin"
-            className={`px-4 py-2 rounded ${
-              location.pathname === '/admin' ? 'text-yellow-400 bg-white/10' : 'text-white'
-            } no-underline`}
-          >
-            Admin
-          </Link>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={`px-4 py-2 rounded ${
+                location.pathname === '/admin' ? 'text-yellow-400 bg-white/10' : 'text-white'
+              } no-underline`}
+            >
+              Admin
+            </Link>
+          )}
         </div>
         <div className="flex items-center gap-2">
+          {user && (
+            <>
+              <div className="flex items-center gap-2 text-white">
+                <User className="w-4 h-4" />
+                <span className="text-sm">{user.email}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={logout}
+                className="text-white hover:bg-white/10"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </>
+          )}
           <NotificationBell />
         </div>
       </div>
