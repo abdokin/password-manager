@@ -29,6 +29,7 @@ apiClient.interceptors.response.use(
         const error = new Error(response.data.error || response.data.message || 'Request failed');
         (error as any).response = {
           ...response,
+          status: response.status,
           data: {
             error: response.data.error,
             errors: response.data.errors,
@@ -43,12 +44,18 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.data) {
       const apiError = error.response.data;
-      if (apiError.error || apiError.errors) {
+      if (typeof apiError === 'object' && 'success' in apiError && !apiError.success) {
+        error.message = apiError.error || apiError.message || 'Request failed';
+        error.errors = apiError.errors;
+        if (!error.response.data.error) {
+          error.response.data.error = error.message;
+        }
+      } else if (apiError.error || apiError.errors) {
         error.message = apiError.error || apiError.message || 'Request failed';
         error.errors = apiError.errors;
       }
     }
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !window.location.pathname.includes('/login')) {
       localStorage.removeItem('auth_token');
       window.location.href = '/login';
     }
