@@ -35,7 +35,6 @@ export default function PasswordForm({ password, onSubmit, onCancel }: PasswordF
     onSubmit: async ({ value }) => {
       onSubmit(value);
     },
-    validator: zodValidator(passwordSchema),
   });
 
   const handleGenerate = async () => {
