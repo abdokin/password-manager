@@ -12,6 +12,16 @@ Rails.application.routes.draw do
         post "import", to: "import_export#import"
         get "export", to: "import_export#export"
         
+        resources :payments, only: [] do
+          collection do
+            get "plans", to: "payments#plans"
+            post "checkout", to: "payments#create_checkout"
+            get "subscription", to: "payments#subscription"
+            post "cancel", to: "payments#cancel_subscription"
+          end
+        end
+        post "payments/webhook", to: "payments#webhook"
+        
         resources :passwords, only: [:index, :show, :create, :update, :destroy] do
           member do
             post :toggle_favorite

@@ -55,5 +55,29 @@ module EnvConfig
       true
     end
   end
+
+  def self.default_payment_provider
+    ENV.fetch('DEFAULT_PAYMENT_PROVIDER', 'mock')
+  end
+
+  def self.stripe_secret_key
+    ENV['STRIPE_SECRET_KEY']
+  end
+
+  def self.stripe_webhook_secret
+    ENV['STRIPE_WEBHOOK_SECRET']
+  end
+
+  def self.paypal_api_url
+    ENV['PAYPAL_API_URL']
+  end
+
+  def self.paypal_client_id
+    ENV['PAYPAL_CLIENT_ID']
+  end
+
+  def self.paypal_client_secret
+    ENV['PAYPAL_CLIENT_SECRET']
+  end
 end
 

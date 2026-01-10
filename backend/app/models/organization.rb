@@ -6,8 +6,13 @@ class Organization < ApplicationRecord
   has_many :activity_logs, dependent: :destroy
   has_many :categories, dependent: :destroy
   has_many :tags, dependent: :destroy
+  has_many :payments, dependent: :destroy
 
   validates :name, presence: true
+  
+  def payment_provider
+    read_attribute(:payment_provider) || 'mock'
+  end
 
   def at_password_limit?
     return false unless subscription

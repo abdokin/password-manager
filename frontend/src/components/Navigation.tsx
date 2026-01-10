@@ -34,6 +34,14 @@ export default function Navigation() {
           >
             Environments
           </Link>
+          <Link
+            to="/pricing"
+            className={`px-4 py-2 rounded ${
+              location.pathname === '/pricing' ? 'text-yellow-400 bg-white/10' : 'text-white'
+            } no-underline`}
+          >
+            Pricing
+          </Link>
         </div>
       </div>
     </nav>

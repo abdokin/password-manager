@@ -4,6 +4,7 @@ import PasswordList from '@/components/PasswordList';
 import Dashboard from '@/components/Dashboard';
 import EnvironmentsList from '@/components/EnvironmentsList';
 import EnvironmentDetail from '@/components/EnvironmentDetail';
+import PricingPlans from '@/components/PricingPlans';
 import Navigation from '@/components/Navigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import '@/index.css';
@@ -27,6 +28,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/environments" element={<EnvironmentsList organizationId={1} />} />
           <Route path="/environments/:id" element={<EnvironmentDetail organizationId={1} environmentId={parseInt(window.location.pathname.split('/').pop() || '1')} />} />
+          <Route path="/pricing" element={<PricingPlans organizationId={1} />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
