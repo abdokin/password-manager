@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Lock, Loader2 } from 'lucide-react';
 
 export default function Login() {
-  const { login, loginWithMagicLink, verifyMagicLink } = useAuth();
+  const { login, magicLink, verify } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [magicLinkToken, setMagicLinkToken] = useState('');
@@ -35,7 +35,7 @@ export default function Login() {
     setError('');
     setIsLoading(true);
     try {
-      await loginWithMagicLink(email);
+      await magicLink(email);
       setMagicLinkSent(true);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to send magic link');
@@ -49,7 +49,7 @@ export default function Login() {
     setError('');
     setIsLoading(true);
     try {
-      await verifyMagicLink(magicLinkToken);
+      await verify(magicLinkToken);
       window.location.href = '/';
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid or expired token');

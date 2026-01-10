@@ -46,3 +46,4 @@ class PasswordBreachCheckJob < ApplicationJob
   end
 end
 
+

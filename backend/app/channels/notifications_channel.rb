@@ -35,3 +35,4 @@ class NotificationsChannel < ApplicationCable::Channel
   end
 end
 
+

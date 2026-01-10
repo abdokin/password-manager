@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { api } from '@/services/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -21,8 +20,9 @@ export default function ImportExport({ organizationId }: ImportExportProps) {
 
   const handleExport = async (format: 'json' | 'csv') => {
     try {
+      const apiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api/v1';
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/organizations/${organizationId}/export?format=${format}`
+        `${apiUrl}/organizations/${organizationId}/export?format=${format}`
       );
       
       if (format === 'csv') {
@@ -92,7 +92,7 @@ export default function ImportExport({ organizationId }: ImportExportProps) {
         Export CSV
       </Button>
       <Dialog open={showImport} onOpenChange={setShowImport}>
-        <DialogTrigger asChild>
+      <DialogTrigger asChild>
           <Button variant="outline">
             <Upload className="w-4 h-4 mr-2" />
             Import

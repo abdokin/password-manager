@@ -1,8 +1,9 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/services/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { FileText, Download } from 'lucide-react';
 
 interface InvoicesProps {
   organizationId: number;
