@@ -10,7 +10,6 @@ export function useActionCable(url: string, channel: string, token?: string) {
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState<ActionCableMessage[]>([]);
   const cableRef = useRef<any>(null);
-  const subscriptionRef = useRef<any>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {

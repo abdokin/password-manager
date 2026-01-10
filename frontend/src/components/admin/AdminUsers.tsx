@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Shield, User, Search, Trash2, Edit } from 'lucide-react';
+import { Shield, User, Trash2 } from 'lucide-react';
 
 export default function AdminUsers() {
   const [search, setSearch] = useState('');

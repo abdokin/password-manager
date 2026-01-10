@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, UserPlus, Crown, Shield, User, Eye, Trash2 } from 'lucide-react';
+import { UserPlus, Crown, Shield, User, Eye, Trash2 } from 'lucide-react';
 
 interface TeamManagementProps {
   organizationId: number;
