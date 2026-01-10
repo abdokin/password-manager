@@ -1,0 +1,10 @@
+log/*
+tmp/*
+.git
+.gitignore
+.env
+.env
+*.md
+spec/*
+coverage/*
+

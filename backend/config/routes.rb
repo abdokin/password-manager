@@ -3,6 +3,8 @@ Rails.application.routes.draw do
     namespace :v1 do
       post "auth/magic_link", to: "auth#magic_link"
       post "auth/verify", to: "auth#verify"
+      post "auth/login", to: "auth#login"
+      get "auth/me", to: "auth#me"
       
       resources :organizations, only: [:index, :show, :create, :update, :destroy] do
         get "audit", to: "audit#show"
@@ -28,6 +30,12 @@ Rails.application.routes.draw do
       end
       
       resources :activity_logs, only: [:index]
+      resources :password_shares, only: [:index, :create, :destroy]
+      resources :user_settings, only: [:index, :show, :create, :update]
+      
+      post "bulk/delete", to: "bulk_operations#delete"
+      post "bulk/toggle_favorite", to: "bulk_operations#toggle_favorite"
+      post "bulk/move_to_category", to: "bulk_operations#move_to_category"
       
       post "password_generator", to: "password_generator#create"
       get "health", to: "health#show"

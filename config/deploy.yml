@@ -1,0 +1,28 @@
+service: password-manager-api
+
+image: password-manager-api
+
+servers:
+  web:
+    hosts:
+      - <%= ENV.fetch("DEPLOY_HOST", "your-server.com") %>
+    cmd: bin/rails server
+
+env:
+  secret:
+    - RAILS_MASTER_KEY
+
+builder:
+  arch: amd64
+
+accessories:
+  db:
+    image: postgres:15
+    host: <%= ENV.fetch("DB_HOST", "your-db-host.com") %>
+    port: 5432
+    env:
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
+
