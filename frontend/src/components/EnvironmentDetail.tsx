@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Lock, Eye, EyeOff, Copy, Trash2, Edit } from 'lucide-react';
-import { api } from '@/services/api';
 
 interface EnvironmentDetailProps {
   organizationId: number;

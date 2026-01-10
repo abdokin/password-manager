@@ -1,5 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/services/api';
 import { useOrganizations } from '@/hooks/useOrganizations';
 import { usePasswords } from '@/hooks/usePasswords';
 import { useEnvironments } from '@/hooks/useEnvironments';

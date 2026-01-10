@@ -14,7 +14,6 @@ import Settings from '@/components/Settings';
 import FeatureFlags from '@/components/FeatureFlags';
 import AdminDashboard from '@/components/AdminDashboard';
 import Navigation from '@/components/Navigation';
-import ErrorBoundary from '@/components/ErrorBoundary';
 import '@/index.css';
 
 const queryClient = new QueryClient({
@@ -46,6 +45,7 @@ function App() {
           <Route path="/feature-flags" element={<FeatureFlags organizationId={1} />} />
           <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
+        </div>
       </BrowserRouter>
     </QueryClientProvider>
   );

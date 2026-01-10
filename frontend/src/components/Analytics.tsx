@@ -89,13 +89,13 @@ export default function Analytics({ organizationId }: AnalyticsProps) {
                 <div>
                   <div className="text-sm text-muted-foreground">Created</div>
                   <div className="text-2xl font-bold">
-                    {Object.values(analytics.passwords?.created || {}).reduce((a: number, b: number) => a + b, 0)}
+                    {Object.values(analytics.passwords?.created || {}).reduce((a: number, b: any) => a + (typeof b === 'number' ? b : 0), 0)}
                   </div>
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Used</div>
                   <div className="text-2xl font-bold">
-                    {Object.values(analytics.passwords?.used || {}).reduce((a: number, b: number) => a + b, 0)}
+                    {Object.values(analytics.passwords?.used || {}).reduce((a: number, b: any) => a + (typeof b === 'number' ? b : 0), 0)}
                   </div>
                 </div>
               </div>
