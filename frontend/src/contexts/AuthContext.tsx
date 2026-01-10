@@ -65,10 +65,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return response;
     },
     onSuccess: (data) => {
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('auth_token', data.token);
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
+      const token = data.token || (data as any).data?.token;
+      const user = data.user || (data as any).data?.user;
+      if (token && user) {
+        setToken(token);
+        setUser(user);
+        localStorage.setItem('auth_token', token);
+        queryClient.invalidateQueries({ queryKey: ['auth'] });
+      }
     },
   });
 
@@ -84,10 +88,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return response;
     },
     onSuccess: (data) => {
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('auth_token', data.token);
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
+      const token = data.token || (data as any).data?.token;
+      const user = data.user || (data as any).data?.user;
+      if (token && user) {
+        setToken(token);
+        setUser(user);
+        localStorage.setItem('auth_token', token);
+        queryClient.invalidateQueries({ queryKey: ['auth'] });
+      }
     },
   });
 
