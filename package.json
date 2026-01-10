@@ -6,9 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-<<<<<<< Updated upstream
-    "lint": "next lint"
-=======
     "lint": "next lint",
     "setup": "bash scripts/setup.sh",
     "migrate": "pnpm drizzle-kit push:sqlite --config=drizzle.config.main.ts",
@@ -18,7 +15,6 @@
     "test:coverage": "vitest run --coverage",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\""
->>>>>>> Stashed changes
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
