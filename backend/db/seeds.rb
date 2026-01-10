@@ -1,36 +1,20 @@
-# Seeds file for development
-# Run with: rails db:seed
-# Or reset with: rails db:reset
-
-puts "🌱 Starting seed process..."
-
 if Rails.env.development?
-  puts "🧹 Clearing existing data..."
-  # Disable foreign key checks for SQLite to allow deletion in any order
-  if ActiveRecord::Base.connection.adapter_name == 'SQLite'
-    ActiveRecord::Base.connection.execute("PRAGMA foreign_keys = OFF")
-  end
-  
-  # Delete in order to respect foreign key constraints (children first, then parents)
-  # Using delete_all for faster deletion without callbacks
-  [PasswordTag, Password, Tag, Category, EnvironmentVariable, EnvironmentAccess, Environment, 
-   OrganizationMember, Subscription, Payment, Invoice, Notification, 
-   ApiKey, UserSetting, VerificationToken, Organization, User].each do |model|
-    begin
+  ActiveRecord::Base.transaction do
+    if ActiveRecord::Base.connection.adapter_name == 'SQLite'
+      ActiveRecord::Base.connection.execute("PRAGMA foreign_keys = OFF")
+    end
+    
+    [PasswordTag, Password, Tag, Category, EnvironmentVariable, EnvironmentAccess, Environment, 
+     OrganizationMember, Subscription, Payment, Invoice, Notification, 
+     ApiKey, UserSetting, VerificationToken, Organization, User].each do |model|
       model.delete_all
-    rescue => e
-      puts "  ⚠️  Could not clear #{model.name}: #{e.message}"
+    end
+    
+    if ActiveRecord::Base.connection.adapter_name == 'SQLite'
+      ActiveRecord::Base.connection.execute("PRAGMA foreign_keys = ON")
     end
   end
-  
-  # Re-enable foreign key checks
-  if ActiveRecord::Base.connection.adapter_name == 'SQLite'
-    ActiveRecord::Base.connection.execute("PRAGMA foreign_keys = ON")
-  end
 end
-
-# Create Users
-puts "👤 Creating users..."
 
 users = [
   { email: "admin@example.com", name: "Admin User", role: "super_admin", password: "password123" },
@@ -48,22 +32,15 @@ created_users = users.map do |user_data|
     u.password = user_data[:password]
   end
   
-  # Update password if it wasn't set or changed
   if user.password_digest.blank? || !user.authenticate(user_data[:password])
     user.password = user_data[:password]
     user.save
   end
   
-  # Ensure name and role are set
   user.update(name: user_data[:name], role: user_data[:role]) if user.name != user_data[:name] || user.role != user_data[:role]
   
   user
 end
-
-puts "✅ Created #{created_users.count} users"
-
-# Create Organizations
-puts "🏢 Creating organizations..."
 
 organizations = [
   { name: "Acme Corp", owner: created_users[0] },
@@ -72,16 +49,12 @@ organizations = [
 ]
 
 created_orgs = organizations.map do |org_data|
-  org = Organization.find_or_create_by(name: org_data[:name]) do |o|
-    o.name = org_data[:name]
-  end
+  org = Organization.find_or_create_by(name: org_data[:name])
   
-  # Create organization member as owner
   OrganizationMember.find_or_create_by(organization: org, user: org_data[:owner]) do |om|
     om.role = "owner"
   end
   
-  # Create subscription
   Subscription.find_or_create_by(organization: org) do |s|
     s.plan = ["free", "basic", "pro"].sample
     s.status = "active"
@@ -90,32 +63,19 @@ created_orgs = organizations.map do |org_data|
   org
 end
 
-puts "✅ Created #{created_orgs.count} organizations"
-
-# Add more members to organizations
-puts "👥 Adding organization members..."
-
-# Add John to Acme Corp as admin
 OrganizationMember.find_or_create_by(organization: created_orgs[0], user: created_users[1]) do |om|
   om.role = "admin"
 end
 
-# Add Jane and Bob to Acme Corp as members
 [created_users[2], created_users[3]].each do |user|
   OrganizationMember.find_or_create_by(organization: created_orgs[0], user: user) do |om|
     om.role = "member"
   end
 end
 
-# Add Alice to Tech Startup as member
 OrganizationMember.find_or_create_by(organization: created_orgs[1], user: created_users[4]) do |om|
   om.role = "member"
 end
-
-puts "✅ Added organization members"
-
-# Create Categories
-puts "📁 Creating categories..."
 
 categories_data = [
   { name: "Social Media", organization: created_orgs[0] },
@@ -131,11 +91,6 @@ created_categories = categories_data.map do |cat_data|
   Category.find_or_create_by(name: cat_data[:name], organization_id: cat_data[:organization].id)
 end
 
-puts "✅ Created #{created_categories.count} categories"
-
-# Create Tags
-puts "🏷️  Creating tags..."
-
 tags_data = [
   { name: "important", organization: created_orgs[0] },
   { name: "shared", organization: created_orgs[0] },
@@ -149,13 +104,7 @@ created_tags = tags_data.map do |tag_data|
   Tag.find_or_create_by(name: tag_data[:name], organization_id: tag_data[:organization].id)
 end
 
-puts "✅ Created #{created_tags.count} tags"
-
-# Create Passwords
-puts "🔐 Creating passwords..."
-
 passwords_data = [
-  # Acme Corp passwords
   { name: "Gmail Account", username: "john@example.com", password: "SecurePass123!", url: "https://gmail.com", 
     organization: created_orgs[0], user: created_users[0], category: created_categories[1], favorite: true },
   { name: "Facebook", username: "john.doe", password: "FbPass2024!", url: "https://facebook.com", 
@@ -177,8 +126,6 @@ passwords_data = [
     organization: created_orgs[0], user: created_users[2], category: created_categories[0] },
   { name: "Netflix", username: "john@example.com", password: "Netflix2024!", url: "https://netflix.com", 
     organization: created_orgs[0], user: created_users[3], category: created_categories[4] },
-  
-  # Tech Startup passwords
   { name: "Stripe API", username: "api_key", password: "sk_live_abc123xyz789", url: "https://stripe.com", 
     organization: created_orgs[1], user: created_users[1], category: created_categories[5] },
   { name: "MongoDB Atlas", username: "admin", password: "MongoDB2024!", url: "https://mongodb.com", 
@@ -201,7 +148,6 @@ created_passwords = passwords_data.map do |pwd_data|
     notes: pwd_data[:notes]
   )
   
-  # Add tags to some passwords
   if pwd_data[:name].include?("API") || pwd_data[:name].include?("Stripe")
     password.tags << created_tags[4] if created_tags[4]
   end
@@ -211,11 +157,6 @@ created_passwords = passwords_data.map do |pwd_data|
   
   password
 end
-
-puts "✅ Created #{created_passwords.count} passwords"
-
-# Create Environments
-puts "🌍 Creating environments..."
 
 environments_data = [
   { name: "Production", environment_type: "production", organization: created_orgs[0] },
@@ -231,11 +172,6 @@ created_environments = environments_data.map do |env_data|
     e.description = "#{env_data[:environment_type].capitalize} environment for #{env_data[:organization].name}"
   end
 end
-
-puts "✅ Created #{created_environments.count} environments"
-
-# Create Environment Variables
-puts "🔧 Creating environment variables..."
 
 env_vars_data = [
   { environment: created_environments[0], key: "DATABASE_URL", value: "postgresql://prod:password@db.example.com:5432/prod_db", encrypted: true },
@@ -256,11 +192,6 @@ env_vars_data.each do |var_data|
   end
 end
 
-puts "✅ Created #{env_vars_data.count} environment variables"
-
-# Create API Keys
-puts "🔑 Creating API keys..."
-
 api_keys_data = [
   { name: "Frontend App", user: created_users[0], organization: created_orgs[0] },
   { name: "Mobile App", user: created_users[1], organization: created_orgs[0] },
@@ -277,11 +208,6 @@ api_keys_data.each do |key_data|
     ak.expires_at = 1.year.from_now
   end
 end
-
-puts "✅ Created #{api_keys_data.count} API keys"
-
-# Create Notifications
-puts "🔔 Creating notifications..."
 
 notifications_data = [
   { user: created_users[0], title: "Welcome!", message: "Welcome to Password Manager", notification_type: "info", organization: created_orgs[0] },
@@ -300,11 +226,6 @@ notifications_data.each do |notif_data|
   )
 end
 
-puts "✅ Created #{notifications_data.count} notifications"
-
-# Create Feature Flags
-puts "🚩 Creating feature flags..."
-
 feature_flags_data = [
   { key: "new_dashboard", name: "New Dashboard", description: "Enable the new dashboard UI", category: "beta", status: "enabled" },
   { key: "dark_mode", name: "Dark Mode", description: "Enable dark mode theme", category: "production", status: "enabled" },
@@ -321,23 +242,15 @@ feature_flags_data.each do |flag_data|
   end
 end
 
-puts "✅ Created #{feature_flags_data.count} feature flags"
-
-puts "\n" + "="*60
-puts "🎉 Seed completed successfully!"
-puts "="*60
-puts "\n📧 Development User Accounts:"
-puts "-"*60
+puts "Seed completed successfully!"
+puts "\nDevelopment User Accounts:"
 created_users.each do |user|
   role_display = user.role || "user"
   puts "  Email: #{user.email.ljust(25)} | Password: password123 | Role: #{role_display}"
 end
-puts "-"*60
-puts "\n🏢 Organizations:"
+puts "\nOrganizations:"
 created_orgs.each do |org|
   member_count = org.organization_members.count
   password_count = org.passwords.count
-  puts "  • #{org.name} (#{member_count} members, #{password_count} passwords)"
+  puts "  #{org.name} (#{member_count} members, #{password_count} passwords)"
 end
-puts "\n💡 Tip: Use any of the emails above with password 'password123' to login"
-puts "="*60
