@@ -18,10 +18,15 @@ export default function Settings() {
     language: 'en',
   });
 
-  const { data: userSettings = {} } = useQuery({
+  const { data: userSettings = [] } = useQuery({
     queryKey: ['user_settings'],
     queryFn: () => api.userSettings.list(),
   });
+  
+  const settingsMap = (userSettings as any[]).reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
 
   const updateSetting = useMutation({
     mutationFn: ({ key, value }: { key: string; value: string }) => api.userSettings.update(key, value),
@@ -56,7 +61,7 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="theme">Theme</Label>
-                <Select value={userSettings.theme || 'light'} onValueChange={(value) => updateSetting.mutate({ key: 'theme', value })}>
+                <Select value={settingsMap.theme || 'light'} onValueChange={(value) => updateSetting.mutate({ key: 'theme', value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -69,7 +74,7 @@ export default function Settings() {
               </div>
               <div>
                 <Label htmlFor="language">Language</Label>
-                <Select value={userSettings.language || 'en'} onValueChange={(value) => updateSetting.mutate({ key: 'language', value })}>
+                <Select value={settingsMap.language || 'en'} onValueChange={(value) => updateSetting.mutate({ key: 'language', value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -100,7 +105,7 @@ export default function Settings() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={userSettings.email_notifications === 'true'}
+                  checked={settingsMap.email_notifications === 'true'}
                   onChange={(e) => updateSetting.mutate({ key: 'email_notifications', value: e.target.checked.toString() })}
                   className="rounded"
                 />
@@ -112,7 +117,7 @@ export default function Settings() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={userSettings.notifications === 'true'}
+                  checked={settingsMap.notifications === 'true'}
                   onChange={(e) => updateSetting.mutate({ key: 'notifications', value: e.target.checked.toString() })}
                   className="rounded"
                 />
@@ -140,7 +145,9 @@ export default function Settings() {
         </TabsContent>
 
         <TabsContent value="api" className="space-y-4">
-          <ApiKeys />
+          <div className="text-center py-8 text-muted-foreground">
+            API Keys management available in the API Keys section
+          </div>
         </TabsContent>
       </Tabs>
     </div>

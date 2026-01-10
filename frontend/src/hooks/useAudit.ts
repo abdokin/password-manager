@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/services/api';
 
 export function useAudit(organizationId: number) {
   return useQuery({
