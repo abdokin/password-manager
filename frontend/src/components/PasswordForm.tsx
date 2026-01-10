@@ -1,5 +1,5 @@
 import { useForm } from '@tanstack/react-form';
-import { zodValidator } from '@hookform/resolvers/zod';
+import { zodValidator } from '@tanstack/zod-form-adapter';
 import type { Password } from '@/types';
 import { passwordSchema, type PasswordFormData } from '@/schemas/password';
 import { usePasswordGenerator } from '@/hooks/usePasswordGenerator';
