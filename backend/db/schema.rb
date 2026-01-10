@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2024_01_10_000008) do
+ActiveRecord::Schema[8.1].define(version: 2024_01_10_000009) do
   create_table "categories", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
@@ -84,6 +84,16 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_10_000008) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "verification_tokens", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["token"], name: "index_verification_tokens_on_token", unique: true
+    t.index ["user_id"], name: "index_verification_tokens_on_user_id"
+  end
+
   create_table "versions", force: :cascade do |t|
     t.datetime "created_at"
     t.string "event", null: false
@@ -104,4 +114,5 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_10_000008) do
   add_foreign_key "passwords", "organizations"
   add_foreign_key "passwords", "users"
   add_foreign_key "tags", "organizations"
+  add_foreign_key "verification_tokens", "users"
 end
