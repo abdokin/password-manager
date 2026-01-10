@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { api } from '@/services/api';
 import { useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Download, Upload } from 'lucide-react';
 
 interface ImportExportProps {
   organizationId: number;
@@ -15,17 +22,18 @@ export default function ImportExport({ organizationId }: ImportExportProps) {
 
   const handleExport = async (format: 'json' | 'csv') => {
     try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/organizations/${organizationId}/export?format=${format}`
+      );
+      
       if (format === 'csv') {
-        const response = await api.organizations.get(organizationId);
-        const csv = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/organizations/${organizationId}/export?format=csv`);
-        const blob = await csv.blob();
+        const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `passwords_${Date.now()}.csv`;
         a.click();
       } else {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/organizations/${organizationId}/export?format=json`);
         const data = await response.json();
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = window.URL.createObjectURL(blob);
@@ -48,16 +56,19 @@ export default function ImportExport({ organizationId }: ImportExportProps) {
 
     setImporting(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/organizations/${organizationId}/import`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          organization_id: organizationId,
-          user_id: 1,
-          format: importFormat,
-          data: importData,
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/organizations/${organizationId}/import`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            organization_id: organizationId,
+            user_id: 1,
+            format: importFormat,
+            data: importData,
+          }),
+        }
+      );
       const result = await response.json();
       queryClient.invalidateQueries({ queryKey: ['passwords'] });
       alert(`Imported ${result.imported} passwords. ${result.errors.length > 0 ? `Errors: ${result.errors.length}` : ''}`);
@@ -72,129 +83,62 @@ export default function ImportExport({ organizationId }: ImportExportProps) {
   };
 
   return (
-    <div style={{ display: 'flex', gap: '0.5rem' }}>
-      <button
-        onClick={() => handleExport('json')}
-        style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: '#28a745',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
+    <div className="flex gap-2">
+      <Button variant="outline" onClick={() => handleExport('json')}>
+        <Download className="w-4 h-4 mr-2" />
         Export JSON
-      </button>
-      <button
-        onClick={() => handleExport('csv')}
-        style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: '#17a2b8',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
+      </Button>
+      <Button variant="outline" onClick={() => handleExport('csv')}>
+        <Download className="w-4 h-4 mr-2" />
         Export CSV
-      </button>
-      <button
-        onClick={() => setShowImport(!showImport)}
-        style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
-        Import
-      </button>
-
-      {showImport && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              padding: '2rem',
-              borderRadius: '8px',
-              maxWidth: '600px',
-              width: '90%',
-            }}
-          >
-            <h2>Import Passwords</h2>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem' }}>Format:</label>
-              <select
-                value={importFormat}
-                onChange={(e) => setImportFormat(e.target.value as 'json' | 'csv')}
-                style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
-              >
-                <option value="json">JSON</option>
-                <option value="csv">CSV</option>
-              </select>
+      </Button>
+      <Dialog open={showImport} onOpenChange={setShowImport}>
+        <DialogTrigger asChild>
+          <Button variant="outline">
+            <Upload className="w-4 h-4 mr-2" />
+            Import
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Import Passwords</DialogTitle>
+            <DialogDescription>Import passwords from JSON or CSV format</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="format">Format</Label>
+              <Select value={importFormat} onValueChange={(value) => setImportFormat(value as 'json' | 'csv')}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="json">JSON</SelectItem>
+                  <SelectItem value="csv">CSV</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem' }}>Data:</label>
-              <textarea
+            <div>
+              <Label htmlFor="data">Data</Label>
+              <Textarea
+                id="data"
                 value={importData}
                 onChange={(e) => setImportData(e.target.value)}
                 rows={10}
-                style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px', fontFamily: 'monospace' }}
+                className="font-mono text-sm"
                 placeholder={importFormat === 'json' ? 'Paste JSON data...' : 'Paste CSV data...'}
               />
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => {
-                  setShowImport(false);
-                  setImportData('');
-                }}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleImport}
-                disabled={importing}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#28a745',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
-              >
-                {importing ? 'Importing...' : 'Import'}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowImport(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleImport} disabled={importing}>
+              {importing ? 'Importing...' : 'Import'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-

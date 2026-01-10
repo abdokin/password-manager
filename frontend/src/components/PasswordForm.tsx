@@ -3,6 +3,12 @@ import { zodValidator } from '@tanstack/zod-form-adapter';
 import type { Password } from '@/types';
 import { passwordSchema, type PasswordFormData } from '@/schemas/password';
 import { usePasswordGenerator } from '@/hooks/usePasswordGenerator';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Lock, RefreshCw } from 'lucide-react';
 
 interface PasswordFormProps {
   password?: Password | null;
@@ -44,207 +50,147 @@ export default function PasswordForm({ password, onSubmit, onCancel }: PasswordF
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-      }}
-    >
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          form.handleSubmit();
-        }}
-        style={{
-          backgroundColor: 'white',
-          padding: '2rem',
-          borderRadius: '8px',
-          maxWidth: '500px',
-          width: '90%',
-          maxHeight: '90vh',
-          overflow: 'auto',
-        }}
-      >
-        <h2 style={{ marginTop: 0 }}>{password ? 'Edit Password' : 'Add Password'}</h2>
+    <Dialog open={true} onOpenChange={onCancel}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{password ? 'Edit Password' : 'Add Password'}</DialogTitle>
+          <DialogDescription>
+            {password ? 'Update password details' : 'Add a new password to your vault'}
+          </DialogDescription>
+        </DialogHeader>
 
-        <form.Field name="name">
-          {(field) => (
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                Name *
-              </label>
-              <input
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                required
-                style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
-              />
-              {field.state.meta.errors.length > 0 && (
-                <div style={{ color: '#dc3545', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                  {field.state.meta.errors[0]}
-                </div>
-              )}
-            </div>
-          )}
-        </form.Field>
-
-        <form.Field name="username">
-          {(field) => (
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                Username *
-              </label>
-              <input
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                required
-                style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
-              />
-              {field.state.meta.errors.length > 0 && (
-                <div style={{ color: '#dc3545', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                  {field.state.meta.errors[0]}
-                </div>
-              )}
-            </div>
-          )}
-        </form.Field>
-
-        <form.Field name="password">
-          {(field) => (
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                Password *
-              </label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <input
-                  type="password"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
+          className="space-y-4"
+        >
+          <form.Field name="name">
+            {(field) => (
+              <div>
+                <Label htmlFor="name">Name *</Label>
+                <Input
+                  id="name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                   required
-                  style={{ flex: 1, padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
                 />
-                <button
-                  type="button"
-                  onClick={handleGenerate}
-                  disabled={generatePassword.isPending}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#17a2b8',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Generate
-                </button>
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">{field.state.meta.errors[0]}</p>
+                )}
               </div>
-              {field.state.meta.errors.length > 0 && (
-                <div style={{ color: '#dc3545', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                  {field.state.meta.errors[0]}
+            )}
+          </form.Field>
+
+          <form.Field name="username">
+            {(field) => (
+              <div>
+                <Label htmlFor="username">Username *</Label>
+                <Input
+                  id="username"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  required
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">{field.state.meta.errors[0]}</p>
+                )}
+              </div>
+            )}
+          </form.Field>
+
+          <form.Field name="password">
+            {(field) => (
+              <div>
+                <Label htmlFor="password">Password *</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="password"
+                    type="password"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    required
+                    className="flex-1"
+                  />
+                  <Button type="button" variant="outline" onClick={handleGenerate} disabled={generatePassword.isPending}>
+                    <RefreshCw className={`w-4 h-4 mr-2 ${generatePassword.isPending ? 'animate-spin' : ''}`} />
+                    Generate
+                  </Button>
                 </div>
-              )}
-            </div>
-          )}
-        </form.Field>
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">{field.state.meta.errors[0]}</p>
+                )}
+              </div>
+            )}
+          </form.Field>
 
-        <form.Field name="url">
-          {(field) => (
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                URL
-              </label>
-              <input
-                type="url"
-                value={field.state.value || ''}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
-              />
-              {field.state.meta.errors.length > 0 && (
-                <div style={{ color: '#dc3545', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                  {field.state.meta.errors[0]}
-                </div>
-              )}
-            </div>
-          )}
-        </form.Field>
+          <form.Field name="url">
+            {(field) => (
+              <div>
+                <Label htmlFor="url">URL</Label>
+                <Input
+                  id="url"
+                  type="url"
+                  value={field.state.value || ''}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="https://example.com"
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">{field.state.meta.errors[0]}</p>
+                )}
+              </div>
+            )}
+          </form.Field>
 
-        <form.Field name="notes">
-          {(field) => (
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                Notes
-              </label>
-              <textarea
-                value={field.state.value || ''}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                rows={3}
-                style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
-              />
-            </div>
-          )}
-        </form.Field>
+          <form.Field name="notes">
+            {(field) => (
+              <div>
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={field.state.value || ''}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  rows={3}
+                  placeholder="Additional notes..."
+                />
+              </div>
+            )}
+          </form.Field>
 
-        <form.Field name="favorite">
-          {(field) => (
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <form.Field name="favorite">
+            {(field) => (
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
+                  id="favorite"
                   checked={field.state.value}
                   onChange={(e) => field.handleChange(e.target.checked)}
+                  className="rounded"
                 />
-                Favorite
-              </label>
-            </div>
-          )}
-        </form.Field>
+                <Label htmlFor="favorite" className="cursor-pointer">
+                  Mark as favorite
+                </Label>
+              </div>
+            )}
+          </form.Field>
 
-        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-          <button
-            type="button"
-            onClick={onCancel}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={form.state.isSubmitting}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            {form.state.isSubmitting ? 'Saving...' : password ? 'Update' : 'Create'}
-          </button>
-        </div>
-      </form>
-    </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={form.state.isSubmitting}>
+              {form.state.isSubmitting ? 'Saving...' : password ? 'Update' : 'Create'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
