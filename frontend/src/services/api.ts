@@ -46,4 +46,37 @@ export const api = {
   health: {
     check: () => apiClient.get<{ status: string; timestamp: string }>('/health').then(res => res.data),
   },
+  environments: {
+    list: (organizationId: number, type?: string) => {
+      const url = type ? `/organizations/${organizationId}/environments?type=${type}` : `/organizations/${organizationId}/environments`;
+      return apiClient.get<Environment[]>(url).then(res => res.data);
+    },
+    get: (organizationId: number, environmentId: number) =>
+      apiClient.get<Environment>(`/organizations/${organizationId}/environments/${environmentId}`).then(res => res.data),
+    create: (organizationId: number, data: Partial<Environment>) =>
+      apiClient.post<Environment>(`/organizations/${organizationId}/environments`, { environment: data }).then(res => res.data),
+    update: (organizationId: number, environmentId: number, data: Partial<Environment>) =>
+      apiClient.put<Environment>(`/organizations/${organizationId}/environments/${environmentId}`, { environment: data }).then(res => res.data),
+    delete: (organizationId: number, environmentId: number) =>
+      apiClient.delete(`/organizations/${organizationId}/environments/${environmentId}`).then(() => undefined),
+    getVariables: (organizationId: number, environmentId: number) =>
+      apiClient.get<EnvironmentVariable[]>(`/organizations/${organizationId}/environments/${environmentId}/variables`).then(res => res.data),
+    addVariable: (organizationId: number, environmentId: number, key: string, value: string, encrypted?: boolean) =>
+      apiClient.post<EnvironmentVariable>(`/organizations/${organizationId}/environments/${environmentId}/variables`, { key, value, encrypted }).then(res => res.data),
+    getVariable: (organizationId: number, environmentId: number, key: string) =>
+      apiClient.get<{ key: string; value: string }>(`/organizations/${organizationId}/environments/${environmentId}/variables/${key}`).then(res => res.data),
+    updateVariable: (organizationId: number, environmentId: number, key: string, value: string, encrypted?: boolean) =>
+      apiClient.put<EnvironmentVariable>(`/organizations/${organizationId}/environments/${environmentId}/variables/${key}`, { value, encrypted }).then(res => res.data),
+    deleteVariable: (organizationId: number, environmentId: number, key: string) =>
+      apiClient.delete(`/organizations/${organizationId}/environments/${environmentId}/variables/${key}`).then(() => undefined),
+    getAccesses: (organizationId: number, environmentId: number) =>
+      apiClient.get<any[]>(`/organizations/${organizationId}/environments/${environmentId}/accesses`).then(res => res.data),
+    grantAccess: (organizationId: number, environmentId: number, email: string, role: string) =>
+      apiClient.post<any>(`/organizations/${organizationId}/environments/${environmentId}/accesses`, { email, role }).then(res => res.data),
+    revokeAccess: (organizationId: number, environmentId: number, email: string) =>
+      apiClient.delete(`/organizations/${organizationId}/environments/${environmentId}/accesses`, { data: { email } }).then(() => undefined),
+  },
 };
+
+import type { Password, Organization, Category, Tag } from '../types';
+import type { Environment, EnvironmentVariable } from '../types/environment';
