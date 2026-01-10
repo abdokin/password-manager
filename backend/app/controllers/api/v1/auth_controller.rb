@@ -1,7 +1,7 @@
 module Api
   module V1
     class AuthController < ApplicationController
-      skip_before_action :authenticate_user!
+      skip_before_action :authenticate_user!, only: [:login, :magic_link, :verify]
       
       def magic_link
         email = params[:email]
