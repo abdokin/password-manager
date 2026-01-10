@@ -154,6 +154,12 @@ export const api = {
     removeOverride: (key: string, data: { user_id?: number; organization_id?: number }) =>
       apiClient.delete(`/feature_flags/${key}/override`, { data }).then(() => undefined),
   },
+  userSettings: {
+    list: () => apiClient.get<any>('/user_settings').then(res => res.data),
+    get: (key: string) => apiClient.get<any>(`/user_settings/${key}`).then(res => res.data),
+    create: (key: string, value: string) => apiClient.post<any>('/user_settings', { key, value }).then(res => res.data),
+    update: (key: string, value: string) => apiClient.put<any>(`/user_settings/${key}`, { value }).then(res => res.data),
+  },
   admin: {
     getStats: () => apiClient.get<any>('/admin/dashboard/stats').then(res => res.data),
     getActivityLogs: (params?: { search?: string; organization_id?: number }) => {
