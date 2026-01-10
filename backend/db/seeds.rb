@@ -281,7 +281,7 @@ notifications_data.each do |notif_data|
     message: notif_data[:message],
     notification_type: notif_data[:notification_type],
     organization: notif_data[:organization],
-    read: false
+    read_at: nil
   )
 end
 
