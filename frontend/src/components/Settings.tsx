@@ -1,22 +1,14 @@
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, Bell, Shield, User } from 'lucide-react';
+import { Bell, Shield, User } from 'lucide-react';
 
 export default function Settings() {
   const queryClient = useQueryClient();
-  const [settings, setSettings] = useState({
-    theme: 'light',
-    notifications: true,
-    email_notifications: true,
-    language: 'en',
-  });
 
   const { data: userSettings = [] } = useQuery({
     queryKey: ['user_settings'],
