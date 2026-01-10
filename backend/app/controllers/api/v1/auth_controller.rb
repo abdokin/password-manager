@@ -18,7 +18,14 @@ module Api
           expires_at: 1.hour.from_now
         )
         
-        render json: { message: "Verification token sent", token: token.token }
+        # Send email via MailHog in development
+        AuthMailer.magic_link_email(user, token.token).deliver_now
+        
+        render json: { 
+          message: "Verification token sent to #{email}", 
+          token: token.token,
+          mailhog_url: Rails.env.development? ? "http://localhost:8025" : nil
+        }
       end
       
       def verify

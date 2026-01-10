@@ -1,0 +1,13 @@
+Welcome to Password Manager
+
+Hello <%= @user.name || @user.email %>,
+
+Click the link below to sign in to your account:
+<%= @magic_link_url %>
+
+Or use this verification token:
+<%= @token %>
+
+This link will expire in 1 hour.
+
+If you didn't request this, please ignore this email.

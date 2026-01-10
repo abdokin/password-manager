@@ -16,6 +16,8 @@ namespace :dev do
     
     puts "\n" + "-"*60
     puts "Total users: #{User.count}"
+    puts "\n📬 MailHog Web UI: http://localhost:8025"
+    puts "   (View all sent emails in development)"
     puts "="*60 + "\n"
   end
   

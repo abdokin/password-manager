@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>Welcome to Password Manager</h1>
+    <p>Hello <%= @user.name || @user.email %>,</p>
+    <p>Click the link below to sign in to your account:</p>
+    <p>
+      <a href="<%= @magic_link_url %>">Sign In</a>
+    </p>
+    <p>Or use this verification token:</p>
+    <p style="font-family: monospace; font-size: 18px; background: #f0f0f0; padding: 10px; border-radius: 4px;">
+      <%= @token %>
+    </p>
+    <p>This link will expire in 1 hour.</p>
+    <p>If you didn't request this, please ignore this email.</p>
+  </body>
+</html>
