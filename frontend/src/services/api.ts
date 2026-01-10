@@ -136,6 +136,23 @@ export const api = {
       return apiClient.get<any>(`/organizations/${organizationId}/analytics/usage?${params}`).then(res => res.data);
     },
   },
+  featureFlags: {
+    list: (organizationId?: number) => {
+      const url = organizationId ? `/feature_flags?organization_id=${organizationId}` : '/feature_flags';
+      return apiClient.get<any[]>(url).then(res => res.data);
+    },
+    get: (key: string) => apiClient.get<any>(`/feature_flags/${key}`).then(res => res.data),
+    create: (data: { key: string; name: string; description?: string; category?: string; status?: string }) =>
+      apiClient.post<any>('/feature_flags', data).then(res => res.data),
+    update: (key: string, data: { name?: string; description?: string; category?: string; status?: string }) =>
+      apiClient.put<any>(`/feature_flags/${key}`, data).then(res => res.data),
+    toggle: (key: string, status: string) =>
+      apiClient.post<any>(`/feature_flags/${key}/toggle`, { status }).then(res => res.data),
+    setOverride: (key: string, data: { user_id?: number; organization_id?: number; enabled: boolean }) =>
+      apiClient.post<any>(`/feature_flags/${key}/override`, data).then(res => res.data),
+    removeOverride: (key: string, data: { user_id?: number; organization_id?: number }) =>
+      apiClient.delete(`/feature_flags/${key}/override`, { data }).then(() => undefined),
+  },
 };
 
 import type { Password, Organization, Category, Tag } from '../types';

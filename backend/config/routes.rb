@@ -75,6 +75,13 @@ Rails.application.routes.draw do
           post "read_all", to: "notifications#mark_all_as_read"
         end
       end
+      resources :feature_flags, only: [:index, :show, :create, :update] do
+        member do
+          post "toggle", to: "feature_flags#toggle"
+          post "override", to: "feature_flags#set_override"
+          delete "override", to: "feature_flags#remove_override"
+        end
+      end
       
       post "bulk/delete", to: "bulk_operations#delete"
       post "bulk/toggle_favorite", to: "bulk_operations#toggle_favorite"
