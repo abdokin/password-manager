@@ -7,10 +7,15 @@ puts "🌱 Starting seed process..."
 # Clear existing data (optional - comment out if you want to keep existing data)
 if Rails.env.development?
   puts "🧹 Clearing existing data..."
-  [PasswordTag, Password, Tag, Category, EnvironmentVariable, Environment, 
-   OrganizationMember, Subscription, Organization, Notification, 
-   ApiKey, UserSetting, VerificationToken, User].each do |model|
-    model.destroy_all
+  # Delete in order to respect foreign key constraints (children first, then parents)
+  [PasswordTag, Password, Tag, Category, EnvironmentVariable, EnvironmentAccess, Environment, 
+   OrganizationMember, Subscription, Payment, Invoice, Notification, 
+   ApiKey, UserSetting, VerificationToken, Organization, User].each do |model|
+    begin
+      model.destroy_all
+    rescue => e
+      puts "  ⚠️  Could not clear #{model.name}: #{e.message}"
+    end
   end
 end
 
