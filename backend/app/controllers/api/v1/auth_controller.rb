@@ -66,12 +66,12 @@ module Api
         user = User.find_by(email: email)
         unless user
           Rails.logger.error "Login failed: User not found for email: #{email}"
-          return render_unauthorized("Invalid credentials")
+          return render_error(message: "Invalid credentials", status: :unauthorized)
         end
         
         unless user.authenticate(password)
           Rails.logger.error "Login failed: Password incorrect for email: #{email}"
-          return render_unauthorized("Invalid credentials")
+          return render_error(message: "Invalid credentials", status: :unauthorized)
         end
         
         jwt_token = JwtService.encode({ user_id: user.id, email: user.email })
