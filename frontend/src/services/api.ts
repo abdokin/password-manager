@@ -153,6 +153,39 @@ export const api = {
     removeOverride: (key: string, data: { user_id?: number; organization_id?: number }) =>
       apiClient.delete(`/feature_flags/${key}/override`, { data }).then(() => undefined),
   },
+  admin: {
+    getStats: () => apiClient.get<any>('/admin/dashboard/stats').then(res => res.data),
+    getActivityLogs: (params?: { search?: string; organization_id?: number }) => {
+      const queryParams = new URLSearchParams();
+      if (params?.search) queryParams.append('search', params.search);
+      if (params?.organization_id) queryParams.append('organization_id', params.organization_id.toString());
+      return apiClient.get<any[]>(`/admin/dashboard/activity_logs?${queryParams}`).then(res => res.data);
+    },
+    users: {
+      list: (params?: { search?: string; role?: string }) => {
+        const queryParams = new URLSearchParams();
+        if (params?.search) queryParams.append('search', params.search);
+        if (params?.role) queryParams.append('role', params.role);
+        return apiClient.get<any>(`/admin/users?${queryParams}`).then(res => res.data);
+      },
+      get: (id: number) => apiClient.get<any>(`/admin/users/${id}`).then(res => res.data),
+      update: (id: number, data: { name?: string; email?: string; role?: string }) =>
+        apiClient.put<any>(`/admin/users/${id}`, data).then(res => res.data),
+      delete: (id: number) => apiClient.delete(`/admin/users/${id}`).then(() => undefined),
+      toggleRole: (id: number) => apiClient.post<any>(`/admin/users/${id}/toggle_role`).then(res => res.data),
+    },
+    organizations: {
+      list: (params?: { search?: string }) => {
+        const queryParams = new URLSearchParams();
+        if (params?.search) queryParams.append('search', params.search);
+        return apiClient.get<any>(`/admin/organizations?${queryParams}`).then(res => res.data);
+      },
+      get: (id: number) => apiClient.get<any>(`/admin/organizations/${id}`).then(res => res.data),
+      update: (id: number, data: { name?: string; payment_provider?: string }) =>
+        apiClient.put<any>(`/admin/organizations/${id}`, data).then(res => res.data),
+      delete: (id: number) => apiClient.delete(`/admin/organizations/${id}`).then(() => undefined),
+    },
+  },
 };
 
 import type { Password, Organization, Category, Tag } from '../types';

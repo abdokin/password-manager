@@ -75,6 +75,14 @@ export default function Navigation() {
           >
             Feature Flags
           </Link>
+          <Link
+            to="/admin"
+            className={`px-4 py-2 rounded ${
+              location.pathname === '/admin' ? 'text-yellow-400 bg-white/10' : 'text-white'
+            } no-underline`}
+          >
+            Admin
+          </Link>
         </div>
         <div className="flex items-center gap-2">
           <NotificationBell />

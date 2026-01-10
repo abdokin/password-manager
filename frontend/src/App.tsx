@@ -12,6 +12,7 @@ import Analytics from '@/components/Analytics';
 import Invoices from '@/components/Invoices';
 import Settings from '@/components/Settings';
 import FeatureFlags from '@/components/FeatureFlags';
+import AdminDashboard from '@/components/AdminDashboard';
 import Navigation from '@/components/Navigation';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import '@/index.css';
@@ -43,6 +44,7 @@ function App() {
           <Route path="/invoices" element={<Invoices organizationId={1} />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/feature-flags" element={<FeatureFlags organizationId={1} />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

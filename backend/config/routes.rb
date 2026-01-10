@@ -89,6 +89,17 @@ Rails.application.routes.draw do
       
       post "password_generator", to: "password_generator#create"
       get "health", to: "health#show"
+      
+      namespace :admin do
+        get "dashboard/stats", to: "admin/dashboard#stats"
+        get "dashboard/activity_logs", to: "admin/dashboard#activity_logs"
+        resources :users, controller: "admin/users", only: [:index, :show, :update, :destroy] do
+          member do
+            post "toggle_role", to: "admin/users#toggle_role"
+          end
+        end
+        resources :organizations, controller: "admin/organizations", only: [:index, :show, :update, :destroy]
+      end
     end
   end
 end
