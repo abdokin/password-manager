@@ -5,26 +5,35 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const { login, magicLink, verify } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [magicLinkToken, setMagicLinkToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setIsLoading(true);
     try {
       await login(email, password);
-      window.location.href = '/';
+      setSuccessMessage('Login successful! Redirecting...');
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed');
+      const errorMessage = err.response?.data?.error || err.message || err.response?.data?.message || 'Login failed';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -33,12 +42,15 @@ export default function Login() {
   const handleMagicLinkRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setIsLoading(true);
     try {
       await magicLink(email);
       setMagicLinkSent(true);
+      setSuccessMessage('Magic link sent! Check your email or MailHog at http://localhost:8025');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to send magic link');
+      const errorMessage = err.response?.data?.error || err.message || err.response?.data?.message || 'Failed to send magic link';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -47,12 +59,17 @@ export default function Login() {
   const handleMagicLinkVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setIsLoading(true);
     try {
       await verify(magicLinkToken);
-      window.location.href = '/';
+      setSuccessMessage('Verification successful! Redirecting...');
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Invalid or expired token');
+      const errorMessage = err.response?.data?.error || err.message || err.response?.data?.message || 'Invalid or expired token';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -81,15 +98,33 @@ export default function Login() {
 
             <TabsContent value="password">
               <form onSubmit={handlePasswordLogin} className="space-y-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+                {successMessage && (
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{successMessage}</AlertDescription>
+                  </Alert>
+                )}
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError('');
+                      setSuccessMessage('');
+                    }}
                     required
+                    disabled={isLoading}
                     placeholder="you@example.com"
+                    className={error ? 'border-destructive' : ''}
                   />
                 </div>
                 <div>
@@ -98,12 +133,17 @@ export default function Login() {
                     id="password"
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setError('');
+                      setSuccessMessage('');
+                    }}
                     required
+                    disabled={isLoading}
                     placeholder="Enter your password"
+                    className={error ? 'border-destructive' : ''}
                   />
                 </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (
                     <>
@@ -123,18 +163,35 @@ export default function Login() {
             <TabsContent value="magic">
               {!magicLinkSent ? (
                 <form onSubmit={handleMagicLinkRequest} className="space-y-4">
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+                  {successMessage && (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{successMessage}</AlertDescription>
+                    </Alert>
+                  )}
                   <div>
                     <Label htmlFor="magic-email">Email</Label>
                     <Input
                       id="magic-email"
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setError('');
+                        setSuccessMessage('');
+                      }}
                       required
+                      disabled={isLoading}
                       placeholder="you@example.com"
+                      className={error ? 'border-destructive' : ''}
                     />
                   </div>
-                  {error && <p className="text-sm text-red-500">{error}</p>}
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
@@ -151,21 +208,38 @@ export default function Login() {
                 </form>
               ) : (
                 <form onSubmit={handleMagicLinkVerify} className="space-y-4">
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+                  {successMessage && (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{successMessage}</AlertDescription>
+                    </Alert>
+                  )}
                   <div>
                     <Label htmlFor="token">Verification Token</Label>
                     <Input
                       id="token"
                       type="text"
                       value={magicLinkToken}
-                      onChange={(e) => setMagicLinkToken(e.target.value)}
+                      onChange={(e) => {
+                        setMagicLinkToken(e.target.value);
+                        setError('');
+                        setSuccessMessage('');
+                      }}
                       required
+                      disabled={isLoading}
                       placeholder="Enter the token from your email"
+                      className={error ? 'border-destructive' : ''}
                     />
                     <p className="text-sm text-muted-foreground mt-2">
-                      Check your email for the magic link token
+                      Check your email for the magic link token or view MailHog at http://localhost:8025
                     </p>
                   </div>
-                  {error && <p className="text-sm text-red-500">{error}</p>}
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
@@ -180,9 +254,12 @@ export default function Login() {
                     type="button"
                     variant="outline"
                     className="w-full"
+                    disabled={isLoading}
                     onClick={() => {
                       setMagicLinkSent(false);
                       setMagicLinkToken('');
+                      setError('');
+                      setSuccessMessage('');
                     }}
                   >
                     Back

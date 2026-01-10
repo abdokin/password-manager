@@ -21,15 +21,15 @@ module ApiResponse
     render json: response, status: status
   end
 
-  def render_unauthorized(message: "Unauthorized")
+  def render_unauthorized(message = "Unauthorized")
     render_error(message: message, status: :unauthorized)
   end
 
-  def render_not_found(message: "Resource not found")
+  def render_not_found(message = "Resource not found")
     render_error(message: message, status: :not_found)
   end
 
-  def render_forbidden(message: "Forbidden")
+  def render_forbidden(message = "Forbidden")
     render_error(message: message, status: :forbidden)
   end
 end
