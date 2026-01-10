@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWebSocket } from '@/hooks/useWebSocket';
+import { useActionCable } from '@/hooks/useActionCable';
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,7 +23,8 @@ export default function NotificationBell() {
     }
   }, []);
 
-  const { isConnected, messages } = useWebSocket(wsUrl, token || undefined);
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const { isConnected, messages } = useActionCable(apiUrl, 'NotificationsChannel', token || undefined);
   const queryClient = useQueryClient();
 
   const { data: notifications = [] } = useQuery({
