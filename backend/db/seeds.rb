@@ -32,7 +32,16 @@ created_users = users.map do |user_data|
     u.role = user_data[:role]
     u.password = user_data[:password]
   end
-  user.update(password: user_data[:password]) if user.password_digest.blank?
+  
+  # Update password if it wasn't set or changed
+  if user.password_digest.blank? || !user.authenticate(user_data[:password])
+    user.password = user_data[:password]
+    user.save
+  end
+  
+  # Ensure name and role are set
+  user.update(name: user_data[:name], role: user_data[:role]) if user.name != user_data[:name] || user.role != user_data[:role]
+  
   user
 end
 

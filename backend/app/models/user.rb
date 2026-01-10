@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  has_secure_password
+  
   has_many :passwords, dependent: :destroy
   has_many :organization_members
   has_many :organizations, through: :organization_members
