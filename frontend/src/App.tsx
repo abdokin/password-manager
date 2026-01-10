@@ -14,7 +14,7 @@ import Invoices from '@/components/Invoices';
 import Settings from '@/components/Settings';
 import FeatureFlags from '@/components/FeatureFlags';
 import AdminDashboard from '@/components/AdminDashboard';
-import Navigation from '@/components/Navigation';
+import Layout from '@/components/Layout';
 import Login from '@/components/Login';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -38,12 +38,14 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
       <Route
         path="/"
         element={
           <ProtectedRoute>
-            <PasswordList />
+            <Layout>
+              <Navigate to="/dashboard" replace />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -51,7 +53,19 @@ function AppRoutes() {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/passwords"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <PasswordList />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -59,7 +73,9 @@ function AppRoutes() {
         path="/environments"
         element={
           <ProtectedRoute>
-            <EnvironmentsList organizationId={1} />
+            <Layout>
+              <EnvironmentsList organizationId={1} />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -67,7 +83,9 @@ function AppRoutes() {
         path="/environments/:id"
         element={
           <ProtectedRoute>
-            <EnvironmentDetail organizationId={1} environmentId={parseInt(window.location.pathname.split('/').pop() || '1')} />
+            <Layout>
+              <EnvironmentDetail organizationId={1} environmentId={parseInt(window.location.pathname.split('/').pop() || '1')} />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -75,7 +93,9 @@ function AppRoutes() {
         path="/pricing"
         element={
           <ProtectedRoute>
-            <PricingPlans organizationId={1} />
+            <Layout>
+              <PricingPlans organizationId={1} />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -83,7 +103,9 @@ function AppRoutes() {
         path="/team"
         element={
           <ProtectedRoute>
-            <TeamManagement organizationId={1} />
+            <Layout>
+              <TeamManagement organizationId={1} />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -91,7 +113,9 @@ function AppRoutes() {
         path="/api-keys"
         element={
           <ProtectedRoute>
-            <ApiKeys organizationId={1} />
+            <Layout>
+              <ApiKeys organizationId={1} />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -99,7 +123,9 @@ function AppRoutes() {
         path="/notifications"
         element={
           <ProtectedRoute>
-            <Notifications organizationId={1} />
+            <Layout>
+              <Notifications organizationId={1} />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -107,7 +133,9 @@ function AppRoutes() {
         path="/analytics"
         element={
           <ProtectedRoute>
-            <Analytics organizationId={1} />
+            <Layout>
+              <Analytics organizationId={1} />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -115,7 +143,9 @@ function AppRoutes() {
         path="/invoices"
         element={
           <ProtectedRoute>
-            <Invoices organizationId={1} />
+            <Layout>
+              <Invoices organizationId={1} />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -123,7 +153,9 @@ function AppRoutes() {
         path="/settings"
         element={
           <ProtectedRoute>
-            <Settings />
+            <Layout>
+              <Settings />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -131,7 +163,9 @@ function AppRoutes() {
         path="/feature-flags"
         element={
           <ProtectedRoute>
-            <FeatureFlags organizationId={1} />
+            <Layout>
+              <FeatureFlags organizationId={1} />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -139,11 +173,13 @@ function AppRoutes() {
         path="/admin"
         element={
           <ProtectedRoute requireAdmin>
-            <AdminDashboard />
+            <Layout>
+              <AdminDashboard />
+            </Layout>
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }
@@ -153,10 +189,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
-          <div className="min-h-screen bg-background">
-            <Navigation />
-            <AppRoutes />
-          </div>
+          <AppRoutes />
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
