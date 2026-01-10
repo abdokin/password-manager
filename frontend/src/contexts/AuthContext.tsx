@@ -96,7 +96,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const login = async (email: string, password: string) => {
-    await loginMutation.mutateAsync({ email, password });
+    try {
+      await loginMutation.mutateAsync({ email, password });
+    } catch (error: any) {
+      throw error;
+    }
   };
 
   const magicLink = async (email: string) => {
