@@ -1,7 +1,7 @@
 import type { Password } from '@/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Star, ExternalLink, AlertTriangle, Copy } from 'lucide-react';
+import { Star, ExternalLink, AlertTriangle } from 'lucide-react';
 
 interface PasswordCardProps {
   password: Password;
