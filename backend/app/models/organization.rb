@@ -4,6 +4,10 @@ class Organization < ApplicationRecord
   has_many :users, through: :organization_members
   has_one :subscription, dependent: :destroy
   has_many :activity_logs, dependent: :destroy
+  has_many :categories, dependent: :destroy
+  has_many :tags, dependent: :destroy
+
+  validates :name, presence: true
 
   def at_password_limit?
     return false unless subscription

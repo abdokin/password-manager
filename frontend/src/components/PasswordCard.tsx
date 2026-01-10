@@ -1,4 +1,7 @@
 import type { Password } from '@/types';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Star, ExternalLink, AlertTriangle, Copy } from 'lucide-react';
 
 interface PasswordCardProps {
   password: Password;
@@ -9,10 +12,10 @@ interface PasswordCardProps {
 
 export default function PasswordCard({ password, onEdit, onDelete, onToggleFavorite }: PasswordCardProps) {
   const getStrengthColor = (score: number) => {
-    if (score < 40) return '#dc3545';
-    if (score < 60) return '#ffc107';
-    if (score < 80) return '#17a2b8';
-    return '#28a745';
+    if (score < 40) return 'text-red-500';
+    if (score < 60) return 'text-yellow-500';
+    if (score < 80) return 'text-blue-500';
+    return 'text-green-500';
   };
 
   const getStrengthLabel = (score: number) => {
@@ -23,84 +26,75 @@ export default function PasswordCard({ password, onEdit, onDelete, onToggleFavor
   };
 
   return (
-    <div
-      style={{
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        padding: '1rem',
-        backgroundColor: 'white',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-        <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{password.name}</h3>
-        <button
-          onClick={onToggleFavorite}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1.5rem',
-            color: password.favorite ? '#ffc107' : '#ddd',
-          }}
-        >
-          ★
-        </button>
-      </div>
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-xl">{password.name}</CardTitle>
+          <button
+            onClick={onToggleFavorite}
+            className="text-2xl hover:scale-110 transition-transform"
+          >
+            <Star className={password.favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'} />
+          </button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <div>Username: {password.username}</div>
+          {password.url && (
+            <div className="flex items-center gap-2">
+              URL:{' '}
+              <a
+                href={password.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline flex items-center gap-1"
+              >
+                {password.url}
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          )}
+        </div>
 
-      <div style={{ marginBottom: '0.5rem', color: '#666', fontSize: '0.9rem' }}>
-        <div>Username: {password.username}</div>
-        {password.url && <div>URL: <a href={password.url} target="_blank" rel="noopener noreferrer">{password.url}</a></div>}
-      </div>
-
-      <div style={{ marginBottom: '0.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '0.85rem', color: '#666' }}>Strength:</span>
-          <span style={{ color: getStrengthColor(password.strength_score), fontWeight: 'bold' }}>
+        <div className="mt-4 flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Strength:</span>
+          <span className={`font-bold ${getStrengthColor(password.strength_score)}`}>
             {getStrengthLabel(password.strength_score)} ({password.strength_score})
           </span>
         </div>
-      </div>
 
-      {(password.is_breached || password.is_duplicate || password.is_weak) && (
-        <div style={{ marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-          {password.is_breached && <span style={{ color: '#dc3545', marginRight: '0.5rem' }}>⚠️ Breached</span>}
-          {password.is_duplicate && <span style={{ color: '#ffc107', marginRight: '0.5rem' }}>⚠️ Duplicate</span>}
-          {password.is_weak && <span style={{ color: '#dc3545', marginRight: '0.5rem' }}>⚠️ Weak</span>}
-        </div>
-      )}
-
-      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-        <button
-          onClick={onEdit}
-          style={{
-            flex: 1,
-            padding: '0.5rem',
-            backgroundColor: '#17a2b8',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
+        {(password.is_breached || password.is_duplicate || password.is_weak) && (
+          <div className="mt-2 flex flex-wrap gap-2 text-sm">
+            {password.is_breached && (
+              <span className="text-red-500 flex items-center gap-1">
+                <AlertTriangle className="w-4 h-4" />
+                Breached
+              </span>
+            )}
+            {password.is_duplicate && (
+              <span className="text-yellow-500 flex items-center gap-1">
+                <AlertTriangle className="w-4 h-4" />
+                Duplicate
+              </span>
+            )}
+            {password.is_weak && (
+              <span className="text-red-500 flex items-center gap-1">
+                <AlertTriangle className="w-4 h-4" />
+                Weak
+              </span>
+            )}
+          </div>
+        )}
+      </CardContent>
+      <CardFooter className="flex gap-2">
+        <Button variant="secondary" onClick={onEdit} className="flex-1">
           Edit
-        </button>
-        <button
-          onClick={onDelete}
-          style={{
-            flex: 1,
-            padding: '0.5rem',
-            backgroundColor: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
+        </Button>
+        <Button variant="destructive" onClick={onDelete} className="flex-1">
           Delete
-        </button>
-      </div>
-    </div>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
-
